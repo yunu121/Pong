@@ -1,0 +1,35 @@
+pong - ENCE260 Embedded Programming Assignment
+==============================================
+pong is a two-player game using two UCFK4 microcontroller boards.
+
+
+Requirements
+------------
+TODO: dev tools (dfu-programmer), header files, dependencies, etc
+
+
+Installation
+------------
+Edit Makefile as necessary (program files will be created in the
+current working directory).
+
+Afterwards enter the following command to build and run pong:
+
+    make program
+	
+
+Running pong
+------------
+TODO: connecting the UCFK4's
+      navigate the interface with navswitch (left, right, up, down)
+	  confirm choices with navswitch (middle) / push button
+	  - set number of rounds through interface
+	  - play round(s) until match point
+	  - display results (win/lose)
+	  reset UCFK4 with the reset button S2
+
+
+Authors
+-------
+69696969 Yunu Cho
+36644941 Owen Zhou
