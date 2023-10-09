@@ -1,3 +1,9 @@
+/* @file   game.c
+ * @author Yunu Cho, Owen Zhou
+ * @date   10 October 2023
+ * @brief  Implementation of a ping pong game.
+ */
+
 #include "system.h"
 #include "ir_uart.h"
 
