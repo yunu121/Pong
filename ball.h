@@ -7,29 +7,20 @@
 #ifndef BALL_H
 #define BALL_H
 
-typedef enum {
-    NORTH,
-    NORTH_EAST,
-    EAST,
-    SOUTH_EAST,
-    SOUTH,
-    SOUTH_WEST,
-    WEST,
-    NORTH_WEST
-} Direction_t;
-
 typedef struct {
     uint8_t x; 
     uint8_t y;
-    Direction dir;
+    int8_t vx;
+    int8_t vy;
 } Ball_t;
 
-/*
+/* Ball initialisation and returns ball object */
+Ball_t ball_init(void);
 
-Ball_t ball_init(...);            initialise ball object
-void ball_set_dir(Ball_t ball);   change the ball direction
-void ball_set_pos(Ball_t ball);   change ball x y position
+/* Change the xy position of the ball */
+void ball_set_pos(Ball_t ball, uint8_t x, uint8_t y);
 
-*/
+/* Change the vxy direction of the ball*/
+void ball_set_dir(Ball_t ball, int8_t vx, int8_t vy);
 
 #endif
