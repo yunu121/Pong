@@ -27,6 +27,6 @@ void ball_set_pos(Ball_t ball, uint8_t x, uint8_t y)
 /* Change the vxy direction of the ball*/
 void ball_set_dir(Ball_t ball, int8_t vx, int8_t vy)
 {
-    ball.vx = x;
-    ball.vy = y;
+    ball.vx = vx;
+    ball.vy = vy;
 }
