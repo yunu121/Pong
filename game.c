@@ -5,9 +5,21 @@
  */
 
 #include "system.h"
-#include "ir_uart.h"
-#include "ball.h"
-#include "paddle.h"
+#include "pacer.h"
+#include "navswitch.h"
+//#include "ir_uart.h"
+#include "tinygl.h"
+#include "../fonts/font5x7_1.h"
+
+/* macros */
+#define PACER_RATE 500
+#define MESSAGE_RATE 10
+
+#define MIN_ROUNDS 1
+#define MAX_ROUNDS 9
+
+/*
+function implementations
 
 char recv_signal(void)
 {
@@ -22,16 +34,51 @@ void send_signal(char c)
 {
     ir_uart_putc(c);
 }
+*/
+
+void display_character(char c)
+{
+    char buffer[2];
+
+    buffer[0] = c;
+    buffer[1] = '\0';
+    tinygl_text(buffer);
+}
+
+uint8_t pre_phase(void)
+{
+    uint8_t rounds = MIN_ROUNDS;
+    while(1) {
+        pacer_wait();
+        tinygl_update();
+        navswitch_update();
+
+        if (navswitch_push_event_p(NAVSWITCH_NORTH)) {
+            rounds = (rounds == MAX_ROUNDS) ? MAX_ROUNDS : rounds+1;
+        }
+        if (navswitch_push_event_p(NAVSWITCH_SOUTH)) {
+            rounds = (rounds == MIN_ROUNDS) ? MIN_ROUNDS : rounds-1;
+        }
+        if (navswitch_push_event_p(NAVSWITCH_PUSH)) {
+            return rounds;
+        }
+
+        display_character(rounds+'0');
+    }
+}
 
 int main (void)
 {
-    system_init ();
-    ir_uart_init ();
+    system_init();
+    // ir_uart_init ();
+    navswitch_init();
 
-    while (1)
-    {
+    tinygl_init(PACER_RATE);
+    tinygl_font_set(&font5x7_1);
+    tinygl_text_speed_set(MESSAGE_RATE);
+    pacer_init(PACER_RATE);
 
-
-
-    }
+    uint8_t rounds = pre_phase();
+    // round_phase();
+    // post_phase();
 }
