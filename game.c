@@ -6,6 +6,8 @@
 
 #include "system.h"
 #include "ir_uart.h"
+#include "ball.h"
+#include "paddle.h"
 
 char recv_signal(void)
 {
