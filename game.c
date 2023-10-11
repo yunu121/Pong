@@ -55,8 +55,8 @@ uint8_t select_host(void)
         pacer_wait();
         tinygl_update();
         display_character(num+'0');
-        ch = recv_signal();
         send_signal(num+'0');
+        ch = recv_signal();
         if (ch-'0' < num) {
             host = 1;
         } else if (ch-'0' > num) {
@@ -105,7 +105,7 @@ int main (void)
     pacer_init(PACER_RATE);
 
     uint8_t host = select_host();
-        rounds = host ? pre_phase() : recv_signal();
+    // rounds = host ? pre_phase() : recv_signal()-'0';
     // round_phase();
     // post_phase();
 }
