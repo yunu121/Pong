@@ -48,7 +48,7 @@ void display_character(char c)
 uint8_t select_host(void)
 {
     //uint8_t host;
-    int8_t num = rand() % 10;
+    int8_t num = rand_r(timer_get()) % 10;
     //char ch = NULL;
 
     while(1) {
@@ -64,6 +64,9 @@ uint8_t select_host(void)
     } else {
         host = 0;
     }
+    */
+    /* or just do
+    host = ch - '0' < num ? 1 : 0
     */
     return 1;
 }
