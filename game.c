@@ -47,28 +47,26 @@ void display_character(char c)
 
 uint8_t select_host(void)
 {
-    //uint8_t host;
+    uint8_t host = NULL;
     int8_t num = rand_r(timer_get()) % 10;
-    //char ch = NULL;
+    char ch = NULL;
 
     while(1) {
         pacer_wait();
         tinygl_update();
         display_character(num+'0');
-        //ch = recv_signal();
-        //send_signal(num+'0');
+        ch = recv_signal();
+        send_signal(num+'0');
+        if (ch-'0' < num) {
+            host = 1;
+        } else if (ch-'0' > num) {
+            host = 0;
+        }
+        if (host != NULL) {
+            return host;
+        }
     }
-    /*
-    if (ch-'0' < num) {
-        host = 1;
-    } else {
-        host = 0;
-    }
-    */
-    /* or just do
-    host = ch - '0' < num ? 1 : 0
-    */
-    return 1;
+    
 }
 
 uint8_t pre_phase(void)
@@ -95,9 +93,11 @@ uint8_t pre_phase(void)
 
 int main (void)
 {
+    uint8_t rounds;
     system_init();
     ir_uart_init ();
     navswitch_init();
+    timer_init();
 
     tinygl_init(PACER_RATE);
     tinygl_font_set(&font5x7_1);
@@ -105,7 +105,7 @@ int main (void)
     pacer_init(PACER_RATE);
 
     uint8_t host = select_host();
-    //uint8_t rounds = pre_phase();
+        rounds = host ? pre_phase() : recv_signal();
     // round_phase();
     // post_phase();
 }
