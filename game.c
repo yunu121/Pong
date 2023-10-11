@@ -11,6 +11,8 @@
 #include "tinygl.h"
 #include "../fonts/font5x7_1.h"
 
+#include <stdlib.h>
+
 /* macros */
 #define PACER_RATE 500
 #define MESSAGE_RATE 10
@@ -18,8 +20,7 @@
 #define MIN_ROUNDS 1
 #define MAX_ROUNDS 9
 
-/*
-function implementations
+/* function implementations */
 
 char recv_signal(void)
 {
@@ -34,7 +35,6 @@ void send_signal(char c)
 {
     ir_uart_putc(c);
 }
-*/
 
 void display_character(char c)
 {
@@ -43,6 +43,24 @@ void display_character(char c)
     buffer[0] = c;
     buffer[1] = '\0';
     tinygl_text(buffer);
+}
+
+uint8_t select_host(void)
+{
+    uint8_t host;
+    uint8_t num = rand() % 10;
+    char ch = NULL;
+
+    while(ch == NULL) {
+        ch = recv_signal();
+        send_signal(num+'0');
+    }
+    if ((int)ch < num) {
+        host = 1;
+    } else {
+        host = 0;
+    }
+    return host;
 }
 
 uint8_t pre_phase(void)
@@ -70,7 +88,7 @@ uint8_t pre_phase(void)
 int main (void)
 {
     system_init();
-    // ir_uart_init ();
+    ir_uart_init ();
     navswitch_init();
 
     tinygl_init(PACER_RATE);
@@ -78,7 +96,11 @@ int main (void)
     tinygl_text_speed_set(MESSAGE_RATE);
     pacer_init(PACER_RATE);
 
-    uint8_t rounds = pre_phase();
+    uint8_t host = select_host();
+    //display_character(host+'0');
+    if (host) {
+        uint8_t rounds = pre_phase();
+    }
     // round_phase();
     // post_phase();
 }
