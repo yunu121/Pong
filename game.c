@@ -52,6 +52,7 @@ uint8_t select_host(void)
     char ch = NULL;
 
     while(ch == NULL) {
+        display_character(num+'0');
         ch = recv_signal();
         send_signal(num+'0');
     }
@@ -97,7 +98,6 @@ int main (void)
     pacer_init(PACER_RATE);
 
     uint8_t host = select_host();
-    //display_character(host+'0');
     if (host) {
         uint8_t rounds = pre_phase();
     }
