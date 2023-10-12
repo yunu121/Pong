@@ -16,7 +16,7 @@ all: game.out
 
 
 # Compile: create object files from C source files.
-game.o: game.c ../../drivers/avr/system.h ../../utils/pacer.h ../../drivers/navswitch.h ../../drivers/avr/ir_uart.h ../../utils/tinygl.h ../../fonts/font5x7_1.h ../../utils/font.h
+game.o: game.c ../../drivers/avr/system.h ../../utils/pacer.h ../../drivers/navswitch.h ../../drivers/avr/ir_uart.h ../../utils/tinygl.h ../../fonts/font5x7_1.h ../../utils/font.h ../../drivers/button.h
 	$(CC) -c $(CFLAGS) $< -o $@
 
 system.o: ../../drivers/avr/system.c ../../drivers/avr/system.h
@@ -25,7 +25,7 @@ system.o: ../../drivers/avr/system.c ../../drivers/avr/system.h
 pacer.o: ../../utils/pacer.c ../../drivers/avr/system.h ../../drivers/avr/timer.h ../../utils/pacer.h
 	$(CC) -c $(CFLAGS) $< -o $@
 
-prescale.o: ../../drivers/avr/prescale.c ../../drivers/avr/prescale.h ../../drivers/avr/system.h
+prescale.o: ../../drivers/avr/prescale.c ../../drivers/avr/system.h
 	$(CC) -c $(CFLAGS) $< -o $@
 
 timer.o: ../../drivers/avr/timer.c ../../drivers/avr/system.h ../../drivers/avr/timer.h
@@ -55,6 +55,9 @@ ledmat.o: ../../drivers/ledmat.c ../../drivers/avr/pio.h ../../drivers/avr/syste
 font.o: ../../utils/font.c ../../drivers/avr/system.h ../../utils/font.h
 	$(CC) -c $(CFLAGS) $< -o $@
 
+button.o: ../../drivers/button.c ../../drivers/avr/system.h ../../drivers/button.h
+	$(CC) -c $(CFLAGS) $< -o $@
+
 ball.o: ball.c ball.h
 	$(CC) -c $(CFLAGS) $< -o $@
 
@@ -64,7 +67,7 @@ paddle.o: paddle.c paddle.h
 
 
 # Link: create ELF output file from object files.
-game.out: game.o system.o pacer.o prescale.o timer.o timer0.o navswitch.o ir_uart.o usart1.o tinygl.o display.o ledmat.o font.o ball.o paddle.o
+game.out: game.o system.o pacer.o prescale.o timer.o timer0.o navswitch.o ir_uart.o usart1.o tinygl.o display.o ledmat.o font.o button.o ball.o paddle.o
 	$(CC) $(CFLAGS) $^ -o $@ -lm
 	$(SIZE) $@
 
