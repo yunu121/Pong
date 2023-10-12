@@ -12,7 +12,7 @@ Paddle_t paddle_init(void)
 {
     Paddle_t paddle;
     paddle.x = CENTRE_POS;
-    paddle.y = 0;        
+    paddle.y = 0;
     paddle.face[0] = CENTRE_POS - 1;
     paddle.face[1] = CENTRE_POS;
     paddle.face[2] = CENTRE_POS + 1;
@@ -23,8 +23,8 @@ Paddle_t paddle_init(void)
     @param paddle the paddle object to be updated
     @param x the new x value of the paddle
     @param y the new y value of the paddle.  */
-void paddle_set_pos(Paddle_t paddle, uint8_t x, uint8_t y)
+void paddle_set_pos(Paddle_t* paddle, uint8_t x, uint8_t y)
 {
-    paddle.x = x;
-    paddle.y = y;
+    paddle->x = x;
+    paddle->y = y;
 }

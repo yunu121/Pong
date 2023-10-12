@@ -17,9 +17,11 @@
 /** Defining macros  */
 #define PACER_RATE 500
 #define MESSAGE_RATE 10
-
 #define MIN_ROUNDS 1
 #define MAX_ROUNDS 9
+
+#define min(x, y) ((x) < (y) ? (x) : (y))
+#define max(x, y) ((x) < (y) ? (y) : (x))
 
 static uint8_t score = 0;
 
@@ -67,10 +69,10 @@ uint8_t select_rounds(void)
         }
 
         if (navswitch_push_event_p(NAVSWITCH_NORTH)) {
-            rounds = (rounds == MAX_ROUNDS) ? MAX_ROUNDS : rounds + 1;
+            rounds = min(MAX_ROUNDS, rounds + 1);
         }
         if (navswitch_push_event_p(NAVSWITCH_SOUTH)) {
-            rounds = (rounds == MIN_ROUNDS) ? MIN_ROUNDS : rounds - 1;
+            rounds = max(MIN_ROUNDS, rounds - 1);
         }
         if (navswitch_push_event_p(NAVSWITCH_PUSH)) {
             send_signal(rounds + '0');
@@ -85,7 +87,31 @@ uint8_t select_rounds(void)
     @return 1 if the player wins, else 0.  */
 uint8_t play_round(void)
 {
-    return 1;
+    Paddle_t paddle = paddle_init();
+    paddle_set_pos(&paddle, 4, 3);
+
+    //Ball_t ball = ball_init();
+    //ball_set_pos(&ball, 2, 3);
+
+    while(1) {
+        pacer_wait();
+        tinygl_update();
+        navswitch_update();
+
+        if (navswitch_push_event_p(NAVSWITCH_NORTH)) {
+            paddle_set_pos(&paddle, paddle.x, max(1, paddle.y-1));
+        }
+        if (navswitch_push_event_p(NAVSWITCH_SOUTH)) {
+            paddle_set_pos(&paddle, paddle.x, min(5, paddle.y+1));
+        }
+        if (navswitch_push_event_p(NAVSWITCH_PUSH)) {
+            return 1; // exit clause
+        }
+
+        tinygl_clear();
+        display_paddle(&paddle);
+        //display_ball(&ball);
+    }
 }
 
 /** Evaluates the winner by comparing the number of rounds with the player's score.
@@ -110,12 +136,10 @@ int main(void)
 
     uint8_t rounds = select_rounds();
 
-
-    while(1) {
-        pacer_wait();
-        tinygl_update();
-        display_character(rounds + '0');
+    while (score != rounds) {
+        score += play_round();
     }
+    display_character('W');
 
     // while (score != rounds) {
     //     // print current score standings for a brief moment

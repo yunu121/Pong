@@ -22,18 +22,18 @@ Ball_t ball_init(void)
     @param ball the ball object to be updated
     @param x the new x value of the ball
     @param y the new y value of the ball.  */
-void ball_set_pos(Ball_t ball, uint8_t x, uint8_t y)
+void ball_set_pos(Ball_t* ball, int8_t x, int8_t y)
 {
-    ball.x = x;
-    ball.y = y;
+    ball->x = x;
+    ball->y = y;
 }
 
 /** Set the vxy direction of the ball.
     @param ball the ball object to be updated
     @param vx the new vx value of the ball
     @param vy the new vy value of the ball.  */
-void ball_set_dir(Ball_t ball, int8_t vx, int8_t vy)
+void ball_set_dir(Ball_t* ball, int8_t vx, int8_t vy)
 {
-    ball.vx = vx;
-    ball.vy = vy;
+    ball->vx = vx;
+    ball->vy = vy;
 }

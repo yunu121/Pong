@@ -10,7 +10,7 @@
 #include <stdint.h>
 
 typedef struct {
-    uint8_t x; 
+    uint8_t x;
     uint8_t y;
     int8_t vx;
     int8_t vy;
@@ -20,9 +20,9 @@ typedef struct {
 Ball_t ball_init(void);
 
 /* Change the xy position of the ball */
-void ball_set_pos(Ball_t ball, uint8_t x, uint8_t y);
+void ball_set_pos(Ball_t* ball, int8_t x, int8_t y);
 
 /* Change the vxy direction of the ball*/
-void ball_set_dir(Ball_t ball, int8_t vx, int8_t vy);
+void ball_set_dir(Ball_t* ball, int8_t vx, int8_t vy);
 
 #endif

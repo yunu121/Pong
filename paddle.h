@@ -13,8 +13,8 @@
 #define PADDLE_SIZE 3
 
 typedef struct {
-    uint8_t x; 
-    uint8_t y;
+    int8_t x;
+    int8_t y;
     uint8_t face[3];
 } Paddle_t;
 
@@ -22,6 +22,6 @@ typedef struct {
 Paddle_t paddle_init(void);
 
 /* Change the xy position of the paddle */
-void paddle_set_pos(Paddle_t paddle, uint8_t x, uint8_t y);
+void paddle_set_pos(Paddle_t* paddle, uint8_t x, uint8_t y);
 
 #endif
