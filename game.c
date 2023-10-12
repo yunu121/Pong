@@ -47,25 +47,16 @@ void send_signal(char c)
     ir_uart_putc(c);
 }
 
-void display_character(char c)
-{
-    char buffer[2];
-
-    buffer[0] = c;
-    buffer[1] = '\0';
-    tinygl_text(buffer);
-}
-
 uint8_t select_rounds(void)
 {
     char ch;
     uint8_t rounds = MIN_ROUNDS;
-    
+
     while(1) {
         pacer_wait();
         tinygl_update();
         navswitch_update();
-        
+
         if ((ch = recv_signal()) && ch != NULL) {
             return ch - '0';
         }
@@ -107,7 +98,7 @@ int main(void)
     timer_init();
     draw_init();
     pacer_init(PACER_RATE);
-    
+
     uint8_t rounds = select_rounds();
 
 
