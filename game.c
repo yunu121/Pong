@@ -51,12 +51,6 @@ uint8_t select_host(void)
     uint8_t num_other = num_self;
 
     while(num_self == num_other) {
-        // led display num_self
-        pacer_wait();
-        tinygl_update();
-        display_character(num_self+'0');
-        
-        // attempt to get other num while sending own
         send_signal(num_self+'0');
         num_other = recv_signal()-'0';
 
@@ -66,7 +60,6 @@ uint8_t select_host(void)
         if (num_self > num_other) {
             return 0;
         }
-        return select_host();
     }
 }
 
