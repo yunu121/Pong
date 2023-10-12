@@ -1,3 +1,8 @@
+/** @file   draw.c
+    @author Yunu Cho, Owen Zhou
+    @date   10 October 2023
+    @brief  Functions related to the LED matrix.
+*/
 #include "draw.h"
 
 void display_ball(Ball_t* ball)

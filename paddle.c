@@ -1,7 +1,7 @@
 /** @file   paddle.c
     @author Yunu Cho, Owen Zhou
     @date   10 October 2023
-    @brief  Declaration and definitions of the ping pong paddle
+    @brief  Functions related to the paddle initialisation and movement
 */
 
 #include "paddle.h"
@@ -11,11 +11,8 @@
 Paddle_t paddle_init(void)
 {
     Paddle_t paddle;
-    paddle.x = CENTRE_POS;
-    paddle.y = 0;
-    paddle.face[0] = CENTRE_POS - 1;
-    paddle.face[1] = CENTRE_POS;
-    paddle.face[2] = CENTRE_POS + 1;
+    paddle.x = PADDLE_X;
+    paddle.y = PADDLE_Y;
     return paddle;
 }
 

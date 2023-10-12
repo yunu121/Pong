@@ -1,7 +1,7 @@
 /** @file   ball.c
     @author Yunu Cho, Owen Zhou
     @date   10 October 2023
-    @brief  Declaration and definitions of the ping pong ball
+    @brief  Functions related to the initialisation and movement of the ping pong ball
 */
 
 #include "ball.h"

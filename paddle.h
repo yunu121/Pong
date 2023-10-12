@@ -1,21 +1,20 @@
-/* @file   paddle.h
- * @author Yunu Cho, Owen Zhou
- * @date   10 October 2023
- * @brief  Declaration and definitions of the ping pong paddle
- */
+/** @file   paddle.h
+    @author Yunu Cho, Owen Zhou
+    @date   10 October 2023
+    @brief  Declaration and definitions of the ping pong paddle
+*/
 
 #ifndef PADDLE_H
 #define PADDLE_H
 
 #include <stdint.h>
 
-#define CENTRE_POS 3
-#define PADDLE_SIZE 3
+#define PADDLE_X 4
+#define PADDLE_Y 3
 
 typedef struct {
     int8_t x;
     int8_t y;
-    uint8_t face[3];
 } Paddle_t;
 
 /* Paddle initialisation and returns paddle object */

@@ -1,13 +1,16 @@
-/* @file   ball.h
- * @author Yunu Cho, Owen Zhou
- * @date   9 October 2023
- * @brief  Declaration and definitions of the ping pong ball
- */
+/** @file   ball.h
+    @author Yunu Cho, Owen Zhou
+    @date   9 October 2023
+    @brief  Declaration and definitions of the ping pong ball
+*/
 
 #ifndef BALL_H
 #define BALL_H
 
 #include <stdint.h>
+
+#define BALL_X 3
+#define BALL_Y 3
 
 typedef struct {
     uint8_t x;

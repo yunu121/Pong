@@ -1,3 +1,9 @@
+/** @file   ball.h
+    @author Yunu Cho, Owen Zhou
+    @date   13 October 2023
+    @brief  Declaration and definitions of the drawing module
+*/
+
 #ifndef DRAW_H
 #define DRAW_H
 

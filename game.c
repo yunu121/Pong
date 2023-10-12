@@ -88,10 +88,10 @@ uint8_t select_rounds(void)
 uint8_t play_round(void)
 {
     Paddle_t paddle = paddle_init();
-    paddle_set_pos(&paddle, 4, 3);
+    paddle_set_pos(&paddle, PADDLE_X, PADDLE_Y);
 
     Ball_t ball = ball_init();
-    ball_set_pos(&ball, 3, 3);
+    ball_set_pos(&ball, BALL_X, BALL_Y);
 
     while(1) {
         pacer_wait();
@@ -99,10 +99,10 @@ uint8_t play_round(void)
         navswitch_update();
 
         if (navswitch_push_event_p(NAVSWITCH_NORTH)) {
-            paddle_set_pos(&paddle, paddle.x, max(1, paddle.y-1));
+            paddle_set_pos(&paddle, paddle.x, max(1, paddle.y - 1));
         }
         if (navswitch_push_event_p(NAVSWITCH_SOUTH)) {
-            paddle_set_pos(&paddle, paddle.x, min(5, paddle.y+1));
+            paddle_set_pos(&paddle, paddle.x, min(5, paddle.y + 1));
         }
         if (navswitch_push_event_p(NAVSWITCH_PUSH)) {
             if (ball.vx == 0 && ball.vy == 0 && paddle.y > 1 && paddle.y < 5) {
@@ -110,7 +110,7 @@ uint8_t play_round(void)
                 return 1;
             }
         }
-        ball_set_pos(&ball, ball.x+ball.vx, ball.y+ball.vy);
+        ball_set_pos(&ball, ball.x + ball.vx, ball.y + ball.vy);
 
         tinygl_clear();
         display_paddle(&paddle);
