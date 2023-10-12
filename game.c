@@ -45,26 +45,6 @@ void display_character(char c)
     tinygl_text(buffer);
 }
 
-/*
-uint8_t select_host(void)
-{
-    uint8_t num_self = rand_r(timer_get()) % 10;
-    uint8_t num_other = num_self;
-
-    while(num_self == num_other) {
-        send_signal(num_self+'0');
-        num_other = recv_signal()-'0';
-
-        if (num_self < num_other) {
-            return 1;
-        }
-        if (num_self > num_other) {
-            return 0;
-        }
-    }
-}
-*/
-
 uint8_t select_rounds(void)
 {
     char ch;
@@ -74,9 +54,9 @@ uint8_t select_rounds(void)
         pacer_wait();
         tinygl_update();
         navswitch_update();
-        ch = recv_signal();
         
-        if (ch != NULL) {
+        // cause i didn't learn my lesson, ch = recv_signal(); 
+        if (ch = recv_signal() && ch != NULL) {
             return ch-'0';
         }
 
@@ -95,6 +75,11 @@ uint8_t select_rounds(void)
     }
 }
 
+uint8_t play_round(void)
+{
+    return 1;
+}
+
 int main (void)
 {
     system_init();
@@ -109,10 +94,19 @@ int main (void)
 
     uint8_t rounds = select_rounds();
 
-    //test
+    /*
     while(1) {
         pacer_wait();
         tinygl_update();
         display_character(rounds+'0');
     }
+    */
+    uint8_t score = 0;
+    while (score != rounds) {
+        // print current score standings for a brief moment
+        score += play_round()
+        // if recv game end signal then break loop (print your score)
+        // assume opponent score is equal to rounds
+    }
+    // conclude with win and lose etc
 }
