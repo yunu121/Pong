@@ -107,9 +107,12 @@ int main (void)
 
     uint8_t host = select_host();
     // indicator to see if either boards host or not
-    if (host) {
-        rounds = pre_phase();
+    while(1) {
+        pacer_wait();
+        tinygl_update();
+        display_character(host+'0');
     }
+        
     //rounds = host ? pre_phase() : recv_signal()-'0';
     // round_phase();
     // post_phase();
