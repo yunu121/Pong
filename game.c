@@ -73,8 +73,8 @@ uint8_t select_rounds(void)
         pacer_wait();
         tinygl_update();
         navswitch_update();
-
-        if (ch = recv_signal() != NULL) {
+        ch = recv_signal();
+        if (ch != NULL) {
             return ch-'0';
         }
 
@@ -111,5 +111,6 @@ int main (void)
     while(1) {
         pacer_wait();
         tinygl_update();
-        display_char(rounds+'0');
+        display_character(rounds+'0');
+    }
 }
