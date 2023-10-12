@@ -25,6 +25,7 @@ static uint8_t score = 0;
 
 /* function implementations */
 
+/** Initialises display related modules.  */
 void draw_init(void)
 {
     tinygl_init(PACER_RATE);
@@ -33,6 +34,7 @@ void draw_init(void)
     tinygl_text_mode_set(TINYGL_TEXT_MODE_SCROLL);
 }
 
+/** Return the received character.  */
 char recv_signal(void)
 {
     char c = NULL;
@@ -42,11 +44,15 @@ char recv_signal(void)
     return c;
 }
 
+/** Sends the given character.
+    @param c character that is being sent.  */
 void send_signal(char c)
 {
     ir_uart_putc(c);
 }
 
+/** Displays the given character.
+    @param c character to be displayed.  */
 void display_character(char c)
 {
     char buffer[2];
@@ -56,6 +62,8 @@ void display_character(char c)
     tinygl_text(buffer);
 }
 
+/** Selects the number of rounds using the navswitch + pushbutton.
+    @return number of rounds to be played.  */
 uint8_t select_rounds(void)
 {
     char ch;
@@ -85,19 +93,24 @@ uint8_t select_rounds(void)
     }
 }
 
+/** Plays a round of pong.
+    @return 1 if the player wins, else 0.  */
 uint8_t play_round(void)
 {
     return 1;
 }
 
-// void evaluate_winner(void)
-// {
-//     if (score == rounds) {
-//         display_text("YOU WIN!");
-//     } else {
-//         display_text("YOU LOSE!");
-//     }
-// }
+/** Evaluates the winner by comparing the number of rounds with the player's score.
+    para
+*/
+void evaluate_winner(uint8_t rounds)
+{
+    if (score == rounds) {
+        display_text("YOU WIN!");
+    } else {
+        display_text("YOU LOSE!");
+    }
+}
 
 int main(void)
 {
@@ -114,7 +127,7 @@ int main(void)
     while(1) {
         pacer_wait();
         tinygl_update();
-        display_character(rounds+'0');
+        display_character(rounds + '0');
     }
 
     // while (score != rounds) {
@@ -123,7 +136,7 @@ int main(void)
     //     // if recv game end signal then break loop (print your score)
     //     // assume opponent score is equal to rounds
     // }
-
+    // evaluate_winner(rounds);
 
     // conclude with win and lose etc
 }
