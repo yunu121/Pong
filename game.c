@@ -47,26 +47,27 @@ void display_character(char c)
 
 uint8_t select_host(void)
 {
-    uint8_t host = NULL;
-    int8_t num = rand_r(timer_get()) % 10;
-    char ch = NULL;
+    uint8_t num_self = rand_r(timer_get()) % 10;
+    uint8_t num_other = num_self;
 
-    while(1) {
+    while(num_self == num_other) {
+        // led display num_self
         pacer_wait();
         tinygl_update();
-        display_character(num+'0');
-        send_signal(num+'0');
-        ch = recv_signal();
-        if (ch-'0' < num) {
-            host = 1;
-        } else if (ch-'0' > num) {
-            host = 0;
+        display_character(num_self+'0');
+        
+        // attempt to get other num while sending own
+        send_signal(num_self+'0');
+        num_other = recv_signal()-'0';
+
+        if (num_self < num_other) {
+            return 1;
         }
-        if (host != NULL) {
-            return host;
+        if (num_self > num_other) {
+            return 0;
         }
+        return select_host();
     }
-    
 }
 
 uint8_t pre_phase(void)
@@ -105,7 +106,11 @@ int main (void)
     pacer_init(PACER_RATE);
 
     uint8_t host = select_host();
-    // rounds = host ? pre_phase() : recv_signal()-'0';
+    // indicator to see if either boards host or not
+    if (host) {
+        rounds = pre_phase();
+    }
+    //rounds = host ? pre_phase() : recv_signal()-'0';
     // round_phase();
     // post_phase();
 }
