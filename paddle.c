@@ -21,6 +21,6 @@ Paddle_t paddle_init(void)
 /* Change the xy position of the paddle */
 void paddle_set_pos(Paddle_t paddle, uint8_t x, uint8_t y)
 {
-    paddle.x += x;
-    paddle.y += y;
+    paddle.x = x;
+    paddle.y = y;
 }

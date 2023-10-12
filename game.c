@@ -26,6 +26,14 @@ static uint8_t rounds;
 
 /* function implementations */
 
+void draw_init(void)
+{
+    tinygl_init(PACER_RATE);
+    tinygl_font_set(&font5x7_1);
+    tinygl_text_speed_set(MESSAGE_RATE);
+    tinygl_text_mode_set(TINYGL_TEXT_MODE_SCROLL);
+}
+
 char recv_signal(void)
 {
     char c = NULL;
@@ -49,33 +57,32 @@ void display_character(char c)
     tinygl_text(buffer);
 }
 
-uint8_t select_rounds(void)
+void select_rounds(void)
 {
     char ch;
-    uint8_t rounds = MIN_ROUNDS;
+    rounds = MIN_ROUNDS;
     
     while(1) {
         pacer_wait();
         tinygl_update();
         navswitch_update();
         
-        
         if ((ch = recv_signal()) && ch != NULL) {
-            return ch-'0';
+            return ch - '0';
         }
 
         if (navswitch_push_event_p(NAVSWITCH_NORTH)) {
-            rounds = (rounds == MAX_ROUNDS) ? MAX_ROUNDS : rounds+1;
+            rounds = (rounds == MAX_ROUNDS) ? MAX_ROUNDS : rounds + 1;
         }
         if (navswitch_push_event_p(NAVSWITCH_SOUTH)) {
-            rounds = (rounds == MIN_ROUNDS) ? MIN_ROUNDS : rounds-1;
+            rounds = (rounds == MIN_ROUNDS) ? MIN_ROUNDS : rounds - 1;
         }
         if (navswitch_push_event_p(NAVSWITCH_PUSH)) {
-            send_signal(rounds+'0');
-            return rounds;
+            send_signal(rounds + '0');
+            return;
         }
 
-        display_character(rounds+'0');
+        display_character(rounds + '0');
     }
 }
 
@@ -93,19 +100,16 @@ void evaluate_winner(void)
     }
 }
 
-int main (void)
+int main(void)
 {
     system_init();
-    ir_uart_init ();
+    ir_uart_init();
     navswitch_init();
     timer_init();
-
-    tinygl_init(PACER_RATE);
-    tinygl_font_set(&font5x7_1);
-    tinygl_text_speed_set(MESSAGE_RATE);
+    draw_init();
     pacer_init(PACER_RATE);
-    tinygl_text_mode_set(TINYGL_TEXT_MODE_SCROLL);
-    rounds = select_rounds();
+    select_rounds();
+
 
 
     while(1) {
