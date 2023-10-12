@@ -69,11 +69,13 @@ uint8_t select_rounds(void)
 {
     char ch;
     uint8_t rounds = MIN_ROUNDS;
+    
     while(1) {
         pacer_wait();
         tinygl_update();
         navswitch_update();
         ch = recv_signal();
+        
         if (ch != NULL) {
             return ch-'0';
         }
