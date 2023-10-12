@@ -10,6 +10,7 @@
 #include "ir_uart.h"
 #include "tinygl.h"
 #include "../fonts/font5x7_1.h"
+#include "draw.h"
 
 #include <stdlib.h>
 
@@ -19,6 +20,9 @@
 
 #define MIN_ROUNDS 1
 #define MAX_ROUNDS 9
+
+static uint8_t score = 0;
+static uint8_t rounds;
 
 /* function implementations */
 
@@ -55,8 +59,8 @@ uint8_t select_rounds(void)
         tinygl_update();
         navswitch_update();
         
-        // cause i didn't learn my lesson, ch = recv_signal(); 
-        if (ch = recv_signal() && ch != NULL) {
+        
+        if ((ch = recv_signal()) && ch != NULL) {
             return ch-'0';
         }
 
@@ -80,6 +84,15 @@ uint8_t play_round(void)
     return 1;
 }
 
+void evaluate_winner(void)
+{
+    if (score == rounds) {
+        display_text("YOU WIN!");
+    } else {
+        display_text("YOU LOSE!");
+    }
+}
+
 int main (void)
 {
     system_init();
@@ -91,22 +104,23 @@ int main (void)
     tinygl_font_set(&font5x7_1);
     tinygl_text_speed_set(MESSAGE_RATE);
     pacer_init(PACER_RATE);
+    tinygl_text_mode_set(TINYGL_TEXT_MODE_SCROLL);
+    rounds = select_rounds();
 
-    uint8_t rounds = select_rounds();
 
-    /*
     while(1) {
         pacer_wait();
         tinygl_update();
         display_character(rounds+'0');
     }
-    */
-    uint8_t score = 0;
-    while (score != rounds) {
-        // print current score standings for a brief moment
-        score += play_round()
-        // if recv game end signal then break loop (print your score)
-        // assume opponent score is equal to rounds
-    }
+
+    // while (score != rounds) {
+    //     // print current score standings for a brief moment
+    //     score += play_round();
+    //     // if recv game end signal then break loop (print your score)
+    //     // assume opponent score is equal to rounds
+    // }
+
+
     // conclude with win and lose etc
 }
