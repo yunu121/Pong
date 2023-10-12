@@ -93,6 +93,7 @@ uint8_t play_round(void)
     Ball_t ball = ball_init();
     ball_set_pos(&ball, BALL_X, BALL_Y);
 
+    int64_t tick = 0;
     while(1) {
         pacer_wait();
         tinygl_update();
@@ -107,10 +108,14 @@ uint8_t play_round(void)
         if (navswitch_push_event_p(NAVSWITCH_PUSH)) {
             if (ball.vx == 0 && ball.vy == 0 && paddle.y > 1 && paddle.y < 5) {
                 ball.vx--;
-                return 1;
             }
         }
-        ball_set_pos(&ball, ball.x + ball.vx, ball.y + ball.vy);
+
+        tick++;
+        if (tick > PACER_RATE) {
+            tick = 0;
+            ball_set_pos(&ball, ball.x+ball.vx, ball.y+ball.vy);
+        }
 
         tinygl_clear();
         display_paddle(&paddle);
@@ -137,6 +142,7 @@ int main(void)
     timer_init();
     draw_init();
     pacer_init(PACER_RATE);
+    tinygl_init(PACER_RATE);
 
     uint8_t rounds = select_rounds();
 
