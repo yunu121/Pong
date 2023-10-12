@@ -22,7 +22,6 @@
 #define MAX_ROUNDS 9
 
 static uint8_t score = 0;
-static uint8_t rounds;
 
 /* function implementations */
 
@@ -57,10 +56,10 @@ void display_character(char c)
     tinygl_text(buffer);
 }
 
-void select_rounds(void)
+uint8_t select_rounds(void)
 {
     char ch;
-    rounds = MIN_ROUNDS;
+    uint8_t rounds = MIN_ROUNDS;
     
     while(1) {
         pacer_wait();
@@ -79,7 +78,7 @@ void select_rounds(void)
         }
         if (navswitch_push_event_p(NAVSWITCH_PUSH)) {
             send_signal(rounds + '0');
-            return;
+            return rounds;
         }
 
         display_character(rounds + '0');
@@ -91,14 +90,14 @@ uint8_t play_round(void)
     return 1;
 }
 
-void evaluate_winner(void)
-{
-    if (score == rounds) {
-        display_text("YOU WIN!");
-    } else {
-        display_text("YOU LOSE!");
-    }
-}
+// void evaluate_winner(void)
+// {
+//     if (score == rounds) {
+//         display_text("YOU WIN!");
+//     } else {
+//         display_text("YOU LOSE!");
+//     }
+// }
 
 int main(void)
 {
@@ -108,8 +107,8 @@ int main(void)
     timer_init();
     draw_init();
     pacer_init(PACER_RATE);
-    select_rounds();
-
+    
+    uint8_t rounds = select_rounds();
 
 
     while(1) {
