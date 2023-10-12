@@ -90,8 +90,8 @@ uint8_t play_round(void)
     Paddle_t paddle = paddle_init();
     paddle_set_pos(&paddle, 4, 3);
 
-    //Ball_t ball = ball_init();
-    //ball_set_pos(&ball, 2, 3);
+    Ball_t ball = ball_init();
+    ball_set_pos(&ball, 3, 3);
 
     while(1) {
         pacer_wait();
@@ -105,12 +105,16 @@ uint8_t play_round(void)
             paddle_set_pos(&paddle, paddle.x, min(5, paddle.y+1));
         }
         if (navswitch_push_event_p(NAVSWITCH_PUSH)) {
-            return 1; // exit clause
+            if (ball.vx == 0 && ball.vy == 0 && paddle.y > 1 && paddle.y < 5) {
+                ball.vx--;
+                return 1;
+            }
         }
+        ball_set_pos(&ball, ball.x+ball.vx, ball.y+ball.vy);
 
         tinygl_clear();
         display_paddle(&paddle);
-        //display_ball(&ball);
+        display_ball(&ball);
     }
 }
 
@@ -136,19 +140,17 @@ int main(void)
 
     uint8_t rounds = select_rounds();
 
-    while (score != rounds) {
+    while(score != rounds) {
+        // display score for 1s
         score += play_round();
     }
-    display_character('W');
+    // send game end signal to break while loop in other funkit
+    // display win or lose
 
-    // while (score != rounds) {
-    //     // print current score standings for a brief moment
-    //     score += play_round();
-    //     // if recv game end signal then break loop (print your score)
-    //     // assume opponent score is equal to rounds
-    // }
-    // tinygl_text_mode_set(TINYGL_TEXT_MODE_SCROLL);
-    // evaluate_winner(rounds);
-
-    // conclude with win and lose etc
+    // test code
+    while(1) {
+        pacer_wait();
+        tinygl_update();
+        display_character('W');
+    }
 }
