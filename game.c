@@ -1,8 +1,8 @@
-/* @file   game.c
- * @author Yunu Cho, Owen Zhou
- * @date   10 October 2023
- * @brief  Implementation of a ping pong game.
- */
+/** @file   game.c
+    @author Yunu Cho, Owen Zhou
+    @date   10 October 2023
+    @brief  Implementation of a ping pong game.
+*/
 
 #include "system.h"
 #include "pacer.h"
@@ -14,7 +14,7 @@
 
 #include <stdlib.h>
 
-/* macros */
+/** Defining macros  */
 #define PACER_RATE 500
 #define MESSAGE_RATE 10
 
@@ -23,7 +23,7 @@
 
 static uint8_t score = 0;
 
-/* function implementations */
+/** Function implementations  */
 
 /** Initialises display related modules.  */
 void draw_init(void)
@@ -31,7 +31,6 @@ void draw_init(void)
     tinygl_init(PACER_RATE);
     tinygl_font_set(&font5x7_1);
     tinygl_text_speed_set(MESSAGE_RATE);
-    tinygl_text_mode_set(TINYGL_TEXT_MODE_SCROLL);
 }
 
 /** Return the received character.  */
@@ -90,8 +89,7 @@ uint8_t play_round(void)
 }
 
 /** Evaluates the winner by comparing the number of rounds with the player's score.
-    para
-*/
+    @param rounds the number of rounds to be played.  */
 void evaluate_winner(uint8_t rounds)
 {
     if (score == rounds) {
@@ -125,6 +123,7 @@ int main(void)
     //     // if recv game end signal then break loop (print your score)
     //     // assume opponent score is equal to rounds
     // }
+    // tinygl_text_mode_set(TINYGL_TEXT_MODE_SCROLL);
     // evaluate_winner(rounds);
 
     // conclude with win and lose etc

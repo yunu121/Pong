@@ -1,12 +1,13 @@
-/* @file   paddle.c
- * @author Yunu Cho, Owen Zhou
- * @date   10 October 2023
- * @brief  Declaration and definitions of the ping pong paddle
- */
+/** @file   paddle.c
+    @author Yunu Cho, Owen Zhou
+    @date   10 October 2023
+    @brief  Declaration and definitions of the ping pong paddle
+*/
 
 #include "paddle.h"
 
-/* Paddle initialisation and returns paddle object */
+/** Initialises paddle.
+    @return the initialised paddle object.  */
 Paddle_t paddle_init(void)
 {
     Paddle_t paddle;
@@ -18,7 +19,10 @@ Paddle_t paddle_init(void)
     return paddle;
 }
 
-/* Change the xy position of the paddle */
+/** Set the xy position of the paddle.
+    @param paddle the paddle object to be updated
+    @param x the new x value of the paddle
+    @param y the new y value of the paddle.  */
 void paddle_set_pos(Paddle_t paddle, uint8_t x, uint8_t y)
 {
     paddle.x = x;
