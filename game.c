@@ -24,7 +24,7 @@
 
 char recv_signal(void)
 {
-    char c;
+    char c = NULL;
     if (ir_uart_read_ready_p()) {
         c = ir_uart_getc();
     }
@@ -45,6 +45,7 @@ void display_character(char c)
     tinygl_text(buffer);
 }
 
+/*
 uint8_t select_host(void)
 {
     uint8_t num_self = rand_r(timer_get()) % 10;
@@ -62,14 +63,20 @@ uint8_t select_host(void)
         }
     }
 }
+*/
 
-uint8_t pre_phase(void)
+uint8_t select_rounds(void)
 {
+    char ch;
     uint8_t rounds = MIN_ROUNDS;
     while(1) {
         pacer_wait();
         tinygl_update();
         navswitch_update();
+
+        if (ch = recv_signal() != NULL) {
+            return ch-'0';
+        }
 
         if (navswitch_push_event_p(NAVSWITCH_NORTH)) {
             rounds = (rounds == MAX_ROUNDS) ? MAX_ROUNDS : rounds+1;
@@ -78,6 +85,7 @@ uint8_t pre_phase(void)
             rounds = (rounds == MIN_ROUNDS) ? MIN_ROUNDS : rounds-1;
         }
         if (navswitch_push_event_p(NAVSWITCH_PUSH)) {
+            send_signal(rounds+'0');
             return rounds;
         }
 
@@ -87,7 +95,6 @@ uint8_t pre_phase(void)
 
 int main (void)
 {
-    uint8_t rounds;
     system_init();
     ir_uart_init ();
     navswitch_init();
@@ -98,15 +105,11 @@ int main (void)
     tinygl_text_speed_set(MESSAGE_RATE);
     pacer_init(PACER_RATE);
 
-    uint8_t host = select_host();
-    // indicator to see if either boards host or not
+    uint8_t rounds = select_rounds();
+
+    //test
     while(1) {
         pacer_wait();
         tinygl_update();
-        display_character(host+'0');
-    }
-        
-    //rounds = host ? pre_phase() : recv_signal()-'0';
-    // round_phase();
-    // post_phase();
+        display_char(rounds+'0');
 }
