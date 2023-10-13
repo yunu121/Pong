@@ -16,7 +16,7 @@ all: game.out
 
 
 # Compile: create object files from C source files.
-game.o: game.c ../../drivers/avr/system.h ../../utils/pacer.h ../../drivers/navswitch.h ../../drivers/avr/ir_uart.h ../../utils/tinygl.h ../../fonts/font5x7_1.h ../../utils/font.h ../../drivers/button.h draw.h
+game.o: game.c ../../drivers/avr/system.h ../../utils/pacer.h ../../drivers/navswitch.h communications.h ../../utils/tinygl.h ../../fonts/font5x7_1.h ../../utils/font.h ../../drivers/button.h draw.h
 	$(CC) -c $(CFLAGS) $< -o $@
 
 system.o: ../../drivers/avr/system.c ../../drivers/avr/system.h
@@ -35,6 +35,9 @@ timer0.o: ../../drivers/avr/timer0.c ../../drivers/avr/bits.h ../../drivers/avr/
 	$(CC) -c $(CFLAGS) $< -o $@
 
 navswitch.o: ../../drivers/navswitch.c ../../drivers/avr/delay.h ../../drivers/avr/pio.h ../../drivers/avr/system.h ../../drivers/navswitch.h
+	$(CC) -c $(CFLAGS) $< -o $@
+
+communications.o: communications.c ../../drivers/avr/ir_uart.h 
 	$(CC) -c $(CFLAGS) $< -o $@
 
 ir_uart.o: ../../drivers/avr/ir_uart.c ../../drivers/avr/ir_uart.h ../../drivers/avr/pio.h ../../drivers/avr/system.h ../../drivers/avr/timer0.h ../../drivers/avr/usart1.h
@@ -70,7 +73,7 @@ paddle.o: paddle.c paddle.h
 
 
 # Link: create ELF output file from object files.
-game.out: game.o system.o pacer.o prescale.o timer.o timer0.o navswitch.o ir_uart.o usart1.o tinygl.o display.o ledmat.o font.o button.o draw.o ball.o paddle.o
+game.out: game.o system.o pacer.o prescale.o timer.o timer0.o navswitch.o communications.o usart1.o tinygl.o display.o ledmat.o font.o button.o draw.o ball.o paddle.o
 	$(CC) $(CFLAGS) $^ -o $@ -lm
 	$(SIZE) $@
 

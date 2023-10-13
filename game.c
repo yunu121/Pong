@@ -7,7 +7,7 @@
 #include "system.h"
 #include "pacer.h"
 #include "navswitch.h"
-#include "ir_uart.h"
+#include "communications.c"
 #include "tinygl.h"
 #include "../fonts/font5x7_1.h"
 #include "draw.h"
@@ -36,24 +36,6 @@ void draw_init(void)
     tinygl_init(PACER_RATE);
     tinygl_font_set(&font5x7_1);
     tinygl_text_speed_set(MESSAGE_RATE);
-}
-
-/** Receives the received character.
-    @return the received character.  */
-char recv_signal(void)
-{
-    char c = NULL;
-    if (ir_uart_read_ready_p()) {
-        c = ir_uart_getc();
-    }
-    return c;
-}
-
-/** Sends the given character.
-    @param c character that is being sent.  */
-void send_signal(char c)
-{
-    ir_uart_putc(c);
 }
 
 /** Selects the number of rounds using the navswitch + pushbutton.
@@ -113,16 +95,17 @@ uint8_t play_round(void)
             paddle_set_pos(&paddle, paddle.x, min(5, paddle.y + 1));
         }
         if (navswitch_push_event_p(NAVSWITCH_PUSH)) {
-            if (!in_motion) {
+            if (!in_motion && host) {
                 ball_set_dir(&ball, -1, ball.vy);
                 in_motion = 1;
             }
         }
 
-        if (in_motion){
+        if (in_motion && host) {
             if (ball.x < 0) {
                 // send ball to opponent and disable ball display
-                ball_set_dir(&ball, 1, ball.vy);
+                // ball_set_dir(&ball, 1, ball.vy);
+                host = 0;
             }
             if (ball.x == paddle.x-1 && ball.y >= paddle.y-1 && ball.y <= paddle.y+1) {
                 // ball is next to paddle
