@@ -6,7 +6,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-void send_signal(char c[]);
+void send_signal(char c);
 
 char recv_signal(void);
 

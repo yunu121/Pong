@@ -73,7 +73,7 @@ paddle.o: paddle.c paddle.h
 
 
 # Link: create ELF output file from object files.
-game.out: game.o system.o pacer.o prescale.o timer.o timer0.o navswitch.o communications.o usart1.o tinygl.o display.o ledmat.o font.o button.o draw.o ball.o paddle.o
+game.out: game.o system.o pacer.o prescale.o timer.o timer0.o navswitch.o communications.o ir_uart.o usart1.o tinygl.o display.o ledmat.o font.o button.o draw.o ball.o paddle.o
 	$(CC) $(CFLAGS) $^ -o $@ -lm
 	$(SIZE) $@
 
