@@ -123,9 +123,8 @@ uint8_t play_round(void)
 
         tinygl_clear();
         display_paddle(&paddle);
-            
         if (host) {
-            display_ball(&ball);       
+            display_ball(&ball);
         }
     }
 }
