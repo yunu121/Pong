@@ -24,6 +24,7 @@
 #define max(x, y) ((x) < (y) ? (y) : (x))
 
 static uint8_t score = 0;
+static uint8_t host = 1;
 
 /** Function implementations  */
 
@@ -65,6 +66,7 @@ uint8_t select_rounds(void)
         navswitch_update();
 
         if ((ch = recv_signal()) && ch != NULL) {
+            host = 0;
             return ch - '0';
         }
 
@@ -120,7 +122,9 @@ uint8_t play_round(void)
 
         tinygl_clear();
         display_paddle(&paddle);
-        display_ball(&ball);
+        if (host) {
+            display_ball(&ball);
+        }
     }
 }
 
