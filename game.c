@@ -91,8 +91,10 @@ uint8_t select_rounds(void)
 /** Plays a round of pong.
     @return 1 if the player wins, else 0.  */
 uint8_t play_round(void)
-{// display score for 1s
+{
+    uint8_t in_motion = 0;
     int16_t tick = 0;
+    
     Paddle_t paddle = paddle_init();
     paddle_set_pos(&paddle, PADDLE_X, PADDLE_Y);
 
@@ -111,25 +113,27 @@ uint8_t play_round(void)
             paddle_set_pos(&paddle, paddle.x, min(5, paddle.y + 1));
         }
         if (navswitch_push_event_p(NAVSWITCH_PUSH)) {
-            if (ball.vx == 0 && ball.vy == 0 && paddle.y > 1 && paddle.y < 5) {
-                ball.vx = -1;
+            if (!in_motion) {
+                ball_set_dir(&ball, -1, ball.vy);
+                in_motion = 1;
             }
         }
 
-        //if (!(ball.vx != 0 && ball.vy != 0)) {}
-
-        if (ball.x < 0) {
-            // send ball to opponent and disable ball display
-            ball.vx = 1;
+        if (in_motion){
+            if (ball.x < 0) {
+                // send ball to opponent and disable ball display
+                ball_set_dir(&ball, 1, ball.vy);
+            }
+            if (ball.x == paddle.x-1 && ball.y >= paddle.y-1 && ball.y <= paddle.y+1) {
+                // ball is next to paddle
+                ball_set_dir(&ball, -1, ball.vy);
+            }
+            if (ball.x > 4) {
+                // lost round and send end round signal to opponent
+                return 0;
+            }
         }
-        if (ball.x == paddle.x-1 && ball.y >= paddle.y-1 && ball.y <= paddle.y+1) {
-            // ball is next to paddle
-            ball.vx = -1;
-        }
-        if (ball.x > 4) {
-            // lost round and send end round signal to opponent
-            return 0;
-        }
+        
 
 
         tick++;
