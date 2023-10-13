@@ -87,13 +87,14 @@ uint8_t select_rounds(void)
     @return 1 if the player wins, else 0.  */
 uint8_t play_round(void)
 {
+    int16_t tick = 0;
+    show_score();
     Paddle_t paddle = paddle_init();
     paddle_set_pos(&paddle, PADDLE_X, PADDLE_Y);
 
     Ball_t ball = ball_init();
     ball_set_pos(&ball, BALL_X, BALL_Y);
 
-    int64_t tick = 0;
     while(1) {
         pacer_wait();
         tinygl_update();
@@ -120,6 +121,18 @@ uint8_t play_round(void)
         tinygl_clear();
         display_paddle(&paddle);
         display_ball(&ball);
+    }
+}
+
+/** Shows the score on the LED matrix.  */
+void show_score(void)
+{
+    int16_t tick = 0;
+    while (tick < 2 * PACER_RATE) {
+        pacer_wait();
+        tinygl_update();
+        display_character(score + '0');
+        tick++;
     }
 }
 
@@ -157,6 +170,6 @@ int main(void)
     while(1) {
         pacer_wait();
         tinygl_update();
-        display_character('W');
+        display_character(score + '0');
     }
 }
