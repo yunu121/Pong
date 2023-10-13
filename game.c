@@ -91,7 +91,6 @@ uint8_t select_rounds(void)
 uint8_t play_round(void)
 {
     int16_t tick = 0;
-    show_score();
     Paddle_t paddle = paddle_init();
     paddle_set_pos(&paddle, PADDLE_X, PADDLE_Y);
 
@@ -111,9 +110,25 @@ uint8_t play_round(void)
         }
         if (navswitch_push_event_p(NAVSWITCH_PUSH)) {
             if (ball.vx == 0 && ball.vy == 0 && paddle.y > 1 && paddle.y < 5) {
-                ball.vx--;
+                ball.vx = -1;
             }
         }
+
+        //if (!(ball.vx != 0 && ball.vy != 0)) {}
+
+        if (ball.x < 0) {
+            // send ball to opponent and disable ball display
+            ball.vx = 1;
+        }
+        if (ball.x == paddle.x-1 && ball.y >= paddle.y-1 && ball.y <= paddle.y+1) {
+            // ball is next to paddle
+            ball.vx = -1;
+        }
+        if (ball.x > 4) {
+            // lost round and send end round signal to opponent
+            return 0;
+        }
+
 
         tick++;
         if (tick > PACER_RATE) {
@@ -165,7 +180,7 @@ int main(void)
     uint8_t rounds = select_rounds();
 
     while(score != rounds) {
-        // display score for 1s
+        show_score();
         score += play_round();
     }
     // send game end signal to break while loop in other funkit
