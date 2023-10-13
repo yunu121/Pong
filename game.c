@@ -19,6 +19,8 @@
 #define MESSAGE_RATE 10
 #define MIN_ROUNDS 1
 #define MAX_ROUNDS 9
+#define X_BOUNDARY 4
+#define Y_BOUNDARY 6
 
 #define min(x, y) ((x) < (y) ? (x) : (y))
 #define max(x, y) ((x) < (y) ? (y) : (x))
@@ -89,9 +91,8 @@ uint8_t select_rounds(void)
 /** Plays a round of pong.
     @return 1 if the player wins, else 0.  */
 uint8_t play_round(void)
-{
+{// display score for 1s
     int16_t tick = 0;
-    show_score();
     Paddle_t paddle = paddle_init();
     paddle_set_pos(&paddle, PADDLE_X, PADDLE_Y);
 
@@ -165,7 +166,7 @@ int main(void)
     uint8_t rounds = select_rounds();
 
     while(score != rounds) {
-        // display score for 1s
+        show_score();
         score += play_round();
     }
     // send game end signal to break while loop in other funkit
