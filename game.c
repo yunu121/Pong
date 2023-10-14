@@ -214,6 +214,6 @@ int main(void)
     if (score == rounds) {
         send_signal(END_GAME);
     }
-    evaluate_winner(score);
+    evaluate_winner(rounds);
     return 0;
 }
