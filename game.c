@@ -122,12 +122,22 @@ uint8_t play_round(void)
             }
             if (ball.x == paddle.x-1 && ball.y >= paddle.y-1 && ball.y <= paddle.y+1) {
                 // ball is next to paddle
-                ball_set_dir(&ball, -1, ball.vy);
+                if (ball.y == paddle.y-1) {
+                    ball_set_dir(&ball, -1, -1);
+                } else if (ball.y == paddle.y+1) {
+                    ball_set_dir(&ball, -1, 1);
+                } else {
+                    ball_set_dir(&ball, -1, 0);
+                }
             }
             if (ball.x > X_BOUNDARY) {
                 // lost round and send end round signal to opponent
                 send_signal(END_ROUND);
                 return 0;
+            }
+            // ball bounce wall
+            if (ball.y >= Y_BOUNDARY || ball.y <= 0) {
+                ball.vy *= -1;
             }
         }
 
@@ -141,9 +151,9 @@ uint8_t play_round(void)
                 in_motion = 1;
 
                 ball.x = 0;
-                ball.y = ch % 10;
+                ball.y = Y_BOUNDARY - (ch % 10);
                 ball.vx = (ch/100 == 0) ? 1 : -1;
-                ball.vy = ((ch%100)/10)-1;
+                ball.vy = -(((ch%100)/10)-1);
             }
         }
 
