@@ -109,10 +109,11 @@ uint8_t play_round(void)
                 // send ball to opponent and disable ball display
                 // ball_set_dir(&ball, 1, ball.vy);
                 host = 0;
-                num = ball.y << 4;
-                num += (-ball.vx << 2);
-                num += ball.vy;
-                send_signal(num);
+                in_motion = 0;
+                //num = ball.y << 4;
+                //num += ball.vx << 2;
+                //num += ball.vy;
+                send_signal(-1*ball.vx);
             }
             if (ball.x == paddle.x-1 && ball.y >= paddle.y-1 && ball.y <= paddle.y+1) {
                 // ball is next to paddle
@@ -126,10 +127,11 @@ uint8_t play_round(void)
             ch = recv_signal();
             if (ch != NULL) {
                 host = 1;
+                in_motion = 1;
                 ball.x = 0;
-                ball.y = ch >> 4;
-                ball.vx = (ch << 4) >> 6;
-                ball.vy = (ch << 6) >> 6;
+                //ball.y = ch >> 4;
+                ball.vx = ch;//(ch << 4) >> 6;
+                //ball.vy = (ch << 6) >> 6;
             }
         }
 
