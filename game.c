@@ -76,12 +76,15 @@ uint8_t play_round(void)
 {
     uint8_t in_motion = 0;
     int16_t tick = 0;
-    
+
     Paddle_t paddle = paddle_init();
     paddle_set_pos(&paddle, PADDLE_X, PADDLE_Y);
 
     Ball_t ball = ball_init();
     ball_set_pos(&ball, BALL_X, BALL_Y);
+
+    char ch;
+    uint8_t num;
 
     while(1) {
         pacer_wait();
@@ -106,6 +109,10 @@ uint8_t play_round(void)
                 // send ball to opponent and disable ball display
                 // ball_set_dir(&ball, 1, ball.vy);
                 host = 0;
+                num = ball.y << 4;
+                num += (-ball.vx << 2);
+                num += ball.vy;
+                send_signal(num);
             }
             if (ball.x == paddle.x-1 && ball.y >= paddle.y-1 && ball.y <= paddle.y+1) {
                 // ball is next to paddle
@@ -115,8 +122,17 @@ uint8_t play_round(void)
                 // lost round and send end round signal to opponent
                 return 0;
             }
+        } else if (!host) {
+            ch = recv_signal();
+            if (ch != NULL) {
+                host = 1;
+                ball.x = 0;
+                ball.y = ch >> 4;
+                ball.vx = (ch << 4) >> 6;
+                ball.vy = (ch << 6) >> 6;
+            }
         }
-        
+
 
 
         tick++;
