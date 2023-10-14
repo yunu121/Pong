@@ -124,13 +124,13 @@ uint8_t play_round(void)
                 send_signal(127);
                 return 0;
             }
-        } else if (!host) {
+        }
+
+        if (!host) {
             ch = recv_signal();
             if (ch != NULL) {
                 if (ch == 127) {
                     return 1;
-                } else if (ch == 126) {
-                    return 2;
                 } else {
                     host = 1;
                     in_motion = 1;
@@ -139,6 +139,11 @@ uint8_t play_round(void)
                     ball.vx = ch;//(ch << 4) >> 6;
                     //ball.vy = (ch << 6) >> 6;
                 }
+            }
+        } else {
+            ch = recv_signal();
+            if (ch == 126) {
+                return 2;
             }
         }
 
@@ -178,6 +183,10 @@ void evaluate_winner(uint8_t rounds)
         display_text("YOU WIN!");
     } else {
         display_text("YOU LOSE!");
+    }
+    while(1) {
+        pacer_wait();
+        tinygl_update();
     }
 }
 
