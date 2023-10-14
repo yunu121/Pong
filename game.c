@@ -121,24 +121,31 @@ uint8_t play_round(void)
             }
             if (ball.x > 4) {
                 // lost round and send end round signal to opponent
+                send_signal(127);
                 return 0;
             }
         } else if (!host) {
             ch = recv_signal();
             if (ch != NULL) {
-                host = 1;
-                in_motion = 1;
-                ball.x = 0;
-                //ball.y = ch >> 4;
-                ball.vx = ch;//(ch << 4) >> 6;
-                //ball.vy = (ch << 6) >> 6;
+                if (ch == 127) {
+                    return 1;
+                } else if (ch == 126) {
+                    return 2;
+                } else {
+                    host = 1;
+                    in_motion = 1;
+                    ball.x = 0;
+                    //ball.y = ch >> 4;
+                    ball.vx = ch;//(ch << 4) >> 6;
+                    //ball.vy = (ch << 6) >> 6;
+                }
             }
         }
 
 
 
         tick++;
-        if (tick > PACER_RATE) {
+        if (tick > PACER_RATE/2) {
             tick = 0;
             ball_set_pos(&ball, ball.x+ball.vx, ball.y+ball.vy);
         }
@@ -185,18 +192,22 @@ int main(void)
     tinygl_init(PACER_RATE);
 
     uint8_t rounds = select_rounds();
+    uint8_t pts;
 
     while(score != rounds) {
+
+        pts = play_round();
+        if (pts == 2) {
+            break;
+        } else {
+            score += pts;
+        }
         show_score();
-        score += play_round();
     }
     // send game end signal to break while loop in other funkit
-    // display win or lose
-
-    // test code
-    while(1) {
-        pacer_wait();
-        tinygl_update();
-        display_character(score + '0');
+    if (score == rounds) {
+        send_signal(126);
     }
+    evaluate_winner(score);
+    return 0;
 }
