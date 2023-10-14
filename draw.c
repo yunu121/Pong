@@ -30,6 +30,7 @@ void display_character(char c)
 
     buffer[0] = c;
     buffer[1] = '\0';
+    tinygl_text_mode_set(TINYGL_TEXT_MODE_STEP);
     tinygl_text(buffer);
 }
 
