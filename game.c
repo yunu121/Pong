@@ -78,15 +78,14 @@ uint8_t play_round(void)
 {
     uint8_t in_motion = 0;
     int16_t tick = 0;
+    char ch;
+    int8_t vx;
 
     Paddle_t paddle = paddle_init();
     paddle_set_pos(&paddle, PADDLE_X, PADDLE_Y);
 
     Ball_t ball = ball_init();
     ball_set_pos(&ball, BALL_X, BALL_Y);
-
-    char ch;
-    uint8_t num;
 
     while(1) {
         pacer_wait();
@@ -112,10 +111,14 @@ uint8_t play_round(void)
                 // ball_set_dir(&ball, 1, ball.vy);
                 host = 0;
                 in_motion = 0;
-                //num = ball.y << 4;
-                //num += ball.vx << 2;
-                //num += ball.vy;
-                send_signal(-1*ball.vx);
+                // tenary
+                if (ball.vx == -1) {
+                    vx = 0;
+                } else {
+                    vx = 1;
+                }
+                send_signal(ball.y + 10*(ball.vy+1) + 100*vx);
+                //send_signal(-ball.vx);
             }
             if (ball.x == paddle.x-1 && ball.y >= paddle.y-1 && ball.y <= paddle.y+1) {
                 // ball is next to paddle
@@ -128,28 +131,21 @@ uint8_t play_round(void)
             }
         }
 
-        if (!host) {
-            ch = recv_signal();
-            if (ch != NULL) {
-                if (ch == END_ROUND) {
-                    return 1;
-                } else {
-                    host = 1;
-                    in_motion = 1;
-                    ball.x = 0;
-                    //ball.y = ch >> 4;
-                    ball.vx = ch;//(ch << 4) >> 6;
-                    //ball.vy = (ch << 6) >> 6;
-                }
-            }
-        } else {
-            ch = recv_signal();
-            if (ch == END_GAME) {
+        if ((ch = recv_signal()) && ch != NULL) {
+            if (host && ch == END_GAME) {
                 return 2;
+            } else if (!host && ch == END_ROUND) {
+                return 1;
+            } else if (!host) {
+                host = 1;
+                in_motion = 1;
+
+                ball.x = 0;
+                ball.y = ch % 10;
+                ball.vx = (ch/100 == 0) ? 1 : -1;
+                ball.vy = ((ch%100)/10)-1;
             }
         }
-
-
 
         tick++;
         if (tick > PACER_RATE/2) {
@@ -182,9 +178,9 @@ void show_score(void)
 void evaluate_winner(uint8_t rounds)
 {
     if (score == rounds) {
-        display_text("YOU WIN!");
+        display_text("WIN");
     } else {
-        display_text("YOU LOSE!");
+        display_text("LOSE");
     }
     while(1) {
         pacer_wait();
@@ -206,7 +202,6 @@ int main(void)
     uint8_t pts;
 
     while(score != rounds) {
-
         pts = play_round();
         if (pts == 2) {
             break;
