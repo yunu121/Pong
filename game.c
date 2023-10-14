@@ -21,6 +21,8 @@
 #define MAX_ROUNDS 9
 #define X_BOUNDARY 4
 #define Y_BOUNDARY 6
+#define END_ROUND 126
+#define END_GAME 127
 
 #define min(x, y) ((x) < (y) ? (x) : (y))
 #define max(x, y) ((x) < (y) ? (y) : (x))
@@ -119,9 +121,9 @@ uint8_t play_round(void)
                 // ball is next to paddle
                 ball_set_dir(&ball, -1, ball.vy);
             }
-            if (ball.x > 4) {
+            if (ball.x > X_BOUNDARY) {
                 // lost round and send end round signal to opponent
-                send_signal(127);
+                send_signal(END_ROUND);
                 return 0;
             }
         }
@@ -129,7 +131,7 @@ uint8_t play_round(void)
         if (!host) {
             ch = recv_signal();
             if (ch != NULL) {
-                if (ch == 127) {
+                if (ch == END_ROUND) {
                     return 1;
                 } else {
                     host = 1;
@@ -142,7 +144,7 @@ uint8_t play_round(void)
             }
         } else {
             ch = recv_signal();
-            if (ch == 126) {
+            if (ch == END_GAME) {
                 return 2;
             }
         }
@@ -215,7 +217,7 @@ int main(void)
     }
     // send game end signal to break while loop in other funkit
     if (score == rounds) {
-        send_signal(126);
+        send_signal(END_GAME);
     }
     evaluate_winner(score);
     return 0;
