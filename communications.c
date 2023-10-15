@@ -1,3 +1,9 @@
+/** @file   communications.c
+    @author Yunu Cho, Owen Zhou
+    @date   14 October 2023
+    @brief  Functions related to communication systems
+*/
+
 #include "communications.h"
 
 /** Sends the given character.

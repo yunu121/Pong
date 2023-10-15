@@ -1,3 +1,9 @@
+/** @file   communications.h
+    @author Yunu Cho, Owen Zhou
+    @date   14 October 2023
+    @brief  Declarations of functions related to communication systems
+*/
+
 #ifndef COMMUNICATIONS_H
 #define COMMUNICATIONS_H
 
