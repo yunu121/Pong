@@ -16,7 +16,7 @@ all: game.out
 
 
 # Compile: create object files from C source files.
-game.o: game.c ../../drivers/avr/system.h ../../utils/pacer.h ../../drivers/navswitch.h communications.h ../../utils/tinygl.h ../../fonts/font5x7_1.h ../../utils/font.h ../../drivers/button.h draw.h
+game.o: game.c ../../drivers/avr/system.h ../../utils/pacer.h ../../drivers/button.h ../../drivers/navswitch.h communications.h ../../utils/tinygl.h ../../fonts/font5x7_1.h ../../utils/font.h ../../drivers/button.h draw.h
 	$(CC) -c $(CFLAGS) $< -o $@
 
 system.o: ../../drivers/avr/system.c ../../drivers/avr/system.h
@@ -32,6 +32,9 @@ timer.o: ../../drivers/avr/timer.c ../../drivers/avr/system.h ../../drivers/avr/
 	$(CC) -c $(CFLAGS) $< -o $@
 
 timer0.o: ../../drivers/avr/timer0.c ../../drivers/avr/bits.h ../../drivers/avr/prescale.h ../../drivers/avr/system.h ../../drivers/avr/timer0.h
+	$(CC) -c $(CFLAGS) $< -o $@
+
+button.o: ../../drivers/button.c ../../drivers/avr/system.h ../../drivers/button.h
 	$(CC) -c $(CFLAGS) $< -o $@
 
 navswitch.o: ../../drivers/navswitch.c ../../drivers/avr/delay.h ../../drivers/avr/pio.h ../../drivers/avr/system.h ../../drivers/navswitch.h
@@ -58,9 +61,6 @@ ledmat.o: ../../drivers/ledmat.c ../../drivers/avr/pio.h ../../drivers/avr/syste
 font.o: ../../utils/font.c ../../drivers/avr/system.h ../../utils/font.h
 	$(CC) -c $(CFLAGS) $< -o $@
 
-button.o: ../../drivers/button.c ../../drivers/avr/system.h ../../drivers/button.h
-	$(CC) -c $(CFLAGS) $< -o $@
-
 draw.o: draw.c ball.h paddle.h ../../utils/tinygl.h ../../fonts/font5x7_1.h
 	$(CC) -c $(CFLAGS) $< -o $@
 
@@ -73,7 +73,7 @@ paddle.o: paddle.c paddle.h
 
 
 # Link: create ELF output file from object files.
-game.out: game.o system.o pacer.o prescale.o timer.o timer0.o navswitch.o communications.o ir_uart.o usart1.o tinygl.o display.o ledmat.o font.o button.o draw.o ball.o paddle.o
+game.out: game.o system.o pacer.o prescale.o timer.o timer0.o button.o navswitch.o communications.o ir_uart.o usart1.o tinygl.o display.o ledmat.o font.o draw.o ball.o paddle.o
 	$(CC) $(CFLAGS) $^ -o $@ -lm
 	$(SIZE) $@
 

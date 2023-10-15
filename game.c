@@ -6,6 +6,7 @@
 
 #include "system.h"
 #include "pacer.h"
+#include "button.h"
 #include "navswitch.h"
 #include "communications.h"
 #include "tinygl.h"
@@ -21,6 +22,7 @@
 #define MAX_ROUNDS 9
 #define X_BOUNDARY 4
 #define Y_BOUNDARY 6
+#define GAME_READY 125
 #define END_ROUND 126
 #define END_GAME 127
 
@@ -38,6 +40,31 @@ void draw_init(void)
     tinygl_init(PACER_RATE);
     tinygl_font_set(&font5x7_1);
     tinygl_text_speed_set(MESSAGE_RATE);
+}
+
+/** Start screen of the game.
+    @return 1 when the game is ready to start.  */
+uint8_t start_game(void)
+{
+    display_text("Pong - Press Pushbutton to start");
+    
+    while((button_push_event_p(0)) != 1) {
+        pacer_wait();
+        tinygl_update();
+        button_update();
+    }
+    
+    return 1;
+}
+
+/** After the game is ready to start, a board blocks and waits for a signal.  */
+void synchronise_boards(void)
+{
+    send_signal(GAME_READY);
+    
+    while ((recv_signal() != GAME_READY)) {
+        continue;
+    }
 }
 
 /** Selects the number of rounds using the navswitch + pushbutton.
@@ -108,17 +135,10 @@ uint8_t play_round(void)
         if (in_motion && host) {
             if (ball.x < 0) {
                 // send ball to opponent and disable ball display
-                // ball_set_dir(&ball, 1, ball.vy);
                 host = 0;
                 in_motion = 0;
-                // tenary
-                if (ball.vx == -1) {
-                    vx = 0;
-                } else {
-                    vx = 1;
-                }
+                vx = ball.vx == -1 ? 0 : 1;
                 send_signal(ball.y + 10*(ball.vy+1) + 100*vx);
-                //send_signal(-ball.vx);
             }
             if (ball.x == paddle.x-1 && ball.y >= paddle.y-1 && ball.y <= paddle.y+1) {
                 // ball is next to paddle
@@ -158,9 +178,9 @@ uint8_t play_round(void)
         }
 
         tick++;
-        if (tick > PACER_RATE/2) {
+        if (tick > PACER_RATE / 2) {
             tick = 0;
-            ball_set_pos(&ball, ball.x+ball.vx, ball.y+ball.vy);
+            ball_set_pos(&ball, ball.x + ball.vx, ball.y + ball.vy);
         }
 
         tinygl_clear();
@@ -202,28 +222,33 @@ int main(void)
 {
     system_init();
     ir_uart_init();
+    button_init();
     navswitch_init();
     timer_init();
     draw_init();
     pacer_init(PACER_RATE);
     tinygl_init(PACER_RATE);
 
-    uint8_t rounds = select_rounds();
-    uint8_t pts;
+    if ((start_game())) {
+        synchronise_boards();
+        
+        uint8_t rounds = select_rounds();
+        uint8_t pts;
 
-    while(score != rounds) {
-        pts = play_round();
-        if (pts == 2) {
-            break;
-        } else {
-            score += pts;
+        while(score != rounds) {
+            pts = play_round();
+            if (pts == 2) {
+                break;
+            } else {
+                score += pts;
+            }
+            show_score();
         }
-        show_score();
+        // send game end signal to break while loop in other funkit
+        if (score == rounds) {
+            send_signal(END_GAME);
+        }
+        evaluate_winner(rounds);
+        return 0;
     }
-    // send game end signal to break while loop in other funkit
-    if (score == rounds) {
-        send_signal(END_GAME);
-    }
-    evaluate_winner(rounds);
-    return 0;
 }
