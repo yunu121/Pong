@@ -19,8 +19,6 @@
 /** Defining macros  */
 #define MIN_ROUNDS 1
 #define MAX_ROUNDS 9
-#define X_BOUNDARY 4
-#define Y_BOUNDARY 6
 #define END_ROUND 126
 #define END_GAME 127
 #define BALL_SPEED 2
@@ -122,7 +120,7 @@ uint8_t play_round(void)
         }
         
         if (navswitch_push_event_p(NAVSWITCH_SOUTH)) {
-            paddle_set_pos(&paddle, paddle.x, min(paddle.y + 1, Y_BOUNDARY - 1));
+            paddle_set_pos(&paddle, paddle.x, min(paddle.y + 1, TINYGL_HEIGHT - 2));
         }
         
         if (navswitch_push_event_p(NAVSWITCH_PUSH)) {
@@ -142,27 +140,27 @@ uint8_t play_round(void)
                 in_motion = 0;
                 send_signal((ball.y << 4) + ((ball.vx+1) << 2) + ball.vy+1);
             }
-            
-            if (ball.x == paddle.x-1 && ball.y >= paddle.y-1 && ball.y <= paddle.y+1) {
-                // ball is next to paddle
+
+            /* ball redirection via paddle */
+            if (ball.x == paddle.x-1) {
                 if (ball.y == paddle.y-1) {
                     ball_set_dir(&ball, -1, -1);
+                } else if (ball.y == paddle.y) {
+                    ball_set_dir(&ball, -1, 0);
                 } else if (ball.y == paddle.y+1) {
                     ball_set_dir(&ball, -1, 1);
-                } else {
-                    ball_set_dir(&ball, -1, 0);
                 }
             }
-            
-            if (ball.x > X_BOUNDARY) {
-                // lost round and send end round signal to opponent
+
+            /* send end round signal to opponent */
+            if (ball.x >= TINYGL_WIDTH) {
                 send_signal(END_ROUND);
                 return 0;
             }
             
-            // ball bounces off wall
-            if (ball.y >= Y_BOUNDARY) {
-                ball_set_pos(&ball, ball.x, Y_BOUNDARY);
+            /* ball bounces off edge */
+            if (ball.y >= TINYGL_HEIGHT - 1) {
+                ball_set_pos(&ball, ball.x, TINYGL_HEIGHT - 1);
                 ball_set_dir(&ball, ball.vx, ball.vy * -1);
             }
             
@@ -181,7 +179,7 @@ uint8_t play_round(void)
             } else if (!host) {
                 host = 1;
                 in_motion = 1;
-                ball_set_pos(&ball, 0, Y_BOUNDARY - (ch >> 4));
+                ball_set_pos(&ball, 0, (TINYGL_HEIGHT - 1) - (ch >> 4));
                 ball_set_dir(&ball, (-(((ch << 4) & 0xFF) >> 6) + 1), (-(((ch << 6) & 0xFF) >> 6)) + 1);
             }
         }
