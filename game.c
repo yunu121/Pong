@@ -53,18 +53,7 @@ uint8_t start_game(void)
         tinygl_update();
         button_update();
     }
-    
     return 1;
-}
-
-/** After the game is ready to start, a board blocks and waits for a signal.  */
-void synchronise_boards(void)
-{
-    send_signal(GAME_READY);
-    
-    while ((recv_signal() != GAME_READY)) {
-        continue;
-    }
 }
 
 /** Selects the number of rounds using the navswitch + pushbutton.
@@ -230,7 +219,7 @@ int main(void)
     tinygl_init(PACER_RATE);
 
     if ((start_game())) {
-        synchronise_boards();
+        synchronise_boards(GAME_READY);
         
         uint8_t rounds = select_rounds();
         uint8_t pts;

@@ -16,4 +16,6 @@ void send_signal(char c);
 
 char recv_signal(void);
 
+void synchronise_boards(uint8_t code);
+
 #endif

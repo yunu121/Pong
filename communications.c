@@ -24,3 +24,12 @@ char recv_signal(void)
     return c;
 }
 
+/** After the game is ready to start, a board blocks and waits for a signal.  */
+void synchronise_boards(uint8_t code)
+{
+    send_signal(code);
+    
+    while ((recv_signal() != code)) {
+        continue;
+    }
+}
