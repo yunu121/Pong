@@ -11,11 +11,11 @@
 Ball_t ball_init(void)
 {
     Ball_t ball;
-    ball.x = 0;
-    ball.y = 0;
+    ball.x = BALL_X;
+    ball.y = BALL_Y;
     ball.vx = 0;
     ball.vy = 0;
-    
+
     return ball;
 }
 

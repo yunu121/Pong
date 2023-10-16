@@ -23,6 +23,4 @@ void display_character(char c);
 
 void display_text(char text[]);
 
-void draw_init(void);
-
 #endif

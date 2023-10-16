@@ -41,7 +41,8 @@ void drivers_init(void)
     timer_init();
     pacer_init(PACER_RATE);
     tinygl_init(PACER_RATE);
-    draw_init();
+    tinygl_font_set(&font5x7_1);
+    tinygl_text_speed_set(MESSAGE_RATE);
 }
 
 /** Start screen of the game.
@@ -55,7 +56,7 @@ uint8_t start_game(void)
         tinygl_update();
         button_update();
     }
-    
+
     return 1;
 }
 
@@ -80,7 +81,7 @@ uint8_t select_rounds(void)
         if (navswitch_push_event_p(NAVSWITCH_NORTH)) {
             rounds = min(MAX_ROUNDS, rounds + 1);
         }
-        
+
         if (navswitch_push_event_p(NAVSWITCH_SOUTH)) {
             rounds = max(MIN_ROUNDS, rounds - 1);
         }
@@ -104,10 +105,7 @@ uint8_t play_round(void)
     int16_t tick = 0;
 
     Paddle_t paddle = paddle_init();
-    paddle_set_pos(&paddle, PADDLE_X, PADDLE_Y);
-
     Ball_t ball = ball_init();
-    ball_set_pos(&ball, BALL_X, BALL_Y);
 
     while(1) {
         pacer_wait();
@@ -118,22 +116,22 @@ uint8_t play_round(void)
         if (navswitch_push_event_p(NAVSWITCH_NORTH)) {
             paddle_set_pos(&paddle, paddle.x, max(paddle.y - 1, 1));
         }
-        
+
         if (navswitch_push_event_p(NAVSWITCH_SOUTH)) {
             paddle_set_pos(&paddle, paddle.x, min(paddle.y + 1, TINYGL_HEIGHT - 2));
         }
-        
+
         if (navswitch_push_event_p(NAVSWITCH_PUSH)) {
-            
+
             if (!in_motion && host && ball.x == paddle.x - 1 && ball.y >= paddle.y - 1 && ball.y <= paddle.y + 1) {
                 ball_set_dir(&ball, -1, ball.vy);
                 in_motion = 1;
             }
-        
+
         }
 
         if (in_motion && host) {
-            
+
             if (ball.x < 0) {
                 // send ball to opponent and disable ball display
                 host = 0;
@@ -157,13 +155,13 @@ uint8_t play_round(void)
                 send_signal(END_ROUND);
                 return 0;
             }
-            
+
             /* ball bounces off edge */
             if (ball.y >= TINYGL_HEIGHT - 1) {
                 ball_set_pos(&ball, ball.x, TINYGL_HEIGHT - 1);
                 ball_set_dir(&ball, ball.vx, ball.vy * -1);
             }
-            
+
             if (ball.y <= 0) {
                 ball_set_pos(&ball, ball.x, 0);
                 ball_set_dir(&ball, ball.vx, ball.vy * -1);
@@ -171,7 +169,7 @@ uint8_t play_round(void)
         }
 
         if ((ch = recv_signal())) {
-            
+
             if (host && ch == END_GAME) {
                 return 2;
             } else if (!host && ch == END_ROUND) {
@@ -185,7 +183,7 @@ uint8_t play_round(void)
         }
 
         tick++;
-        
+
         if (tick > PACER_RATE / BALL_SPEED) {
             tick = 0;
             ball_set_pos(&ball, ball.x + ball.vx, ball.y + ball.vy);
@@ -193,10 +191,10 @@ uint8_t play_round(void)
 
         tinygl_clear();
         display_paddle(&paddle);
-        
+
         if (host) {
             display_ball(&ball);
-        }   
+        }
     }
 }
 
@@ -204,7 +202,7 @@ uint8_t play_round(void)
 void show_score(void)
 {
     int16_t tick = 0;
-    
+
     while (tick < 2 * PACER_RATE) {
         pacer_wait();
         tinygl_update();
@@ -222,7 +220,7 @@ void evaluate_winner(uint8_t rounds)
     } else {
         display_text("LOSE");
     }
-    
+
     while(1) {
         pacer_wait();
         tinygl_update();
@@ -250,9 +248,9 @@ int main(void)
         if (score == rounds) {
             send_signal(END_GAME);
         }
-        
+
         evaluate_winner(rounds);
-        
+
         return 0;
     }
 }
