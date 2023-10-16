@@ -24,6 +24,7 @@
 #define Y_BOUNDARY 6
 #define END_ROUND 126
 #define END_GAME 127
+#define BALL_SPEED 2
 
 #define min(x, y) ((x) < (y) ? (x) : (y))
 #define max(x, y) ((x) < (y) ? (y) : (x))
@@ -46,7 +47,7 @@ void draw_init(void)
 uint8_t start_game(void)
 {
     display_text("Pong - Press Pushbutton to start");
-    
+
     while((button_push_event_p(0)) != 1) {
         pacer_wait();
         tinygl_update();
@@ -67,7 +68,7 @@ uint8_t select_rounds(void)
         tinygl_update();
         navswitch_update();
 
-        if ((ch = recv_signal()) && ch != NULL) {
+        if ((ch = recv_signal()) && ch != NULL && ch >= MIN_ROUNDS+'0' && ch <= MAX_ROUNDS+'0') {
             host = 0;
             return ch - '0';
         }
@@ -114,7 +115,7 @@ uint8_t play_round(void)
             paddle_set_pos(&paddle, paddle.x, min(5, paddle.y + 1));
         }
         if (navswitch_push_event_p(NAVSWITCH_PUSH)) {
-            if (!in_motion && host) {
+            if (!in_motion && host && ball.x == paddle.x-1 && ball.y >= paddle.y-1 && ball.y <= paddle.y+1) {
                 ball_set_dir(&ball, -1, ball.vy);
                 in_motion = 1;
             }
@@ -125,8 +126,9 @@ uint8_t play_round(void)
                 // send ball to opponent and disable ball display
                 host = 0;
                 in_motion = 0;
-                vx = ball.vx == -1 ? 0 : 1;
-                send_signal(ball.y + 10*(ball.vy+1) + 100*vx);
+                //vx = ball.vx == -1 ? 0 : 1;
+                //send_signal(ball.y + 10*(ball.vy+1) + 100*vx);
+                send_signal((ball.y << 4) + ((ball.vx+1) << 2) + ball.vy+1);
             }
             if (ball.x == paddle.x-1 && ball.y >= paddle.y-1 && ball.y <= paddle.y+1) {
                 // ball is next to paddle
@@ -144,7 +146,12 @@ uint8_t play_round(void)
                 return 0;
             }
             // ball bounce wall
-            if (ball.y >= Y_BOUNDARY || ball.y <= 0) {
+            if (ball.y >= Y_BOUNDARY) {
+                ball.y = Y_BOUNDARY;
+                ball.vy *= -1;
+            }
+            if (ball.y <= 0) {
+                ball.y = 0;
                 ball.vy *= -1;
             }
         }
@@ -159,14 +166,17 @@ uint8_t play_round(void)
                 in_motion = 1;
 
                 ball.x = 0;
-                ball.y = Y_BOUNDARY - (ch % 10);
-                ball.vx = (ch/100 == 0) ? 1 : -1;
-                ball.vy = -(((ch%100)/10)-1);
+                //ball.y = Y_BOUNDARY - (ch % 10);
+                //ball.vx = (ch/100 == 0) ? 1 : -1;
+                //ball.vy = -(((ch%100)/10)-1);
+                ball.y = Y_BOUNDARY - (ch >> 4);
+                ball.vx = -(((ch << 4) & 0xff) >> 6) + 1;
+                ball.vy = -(((ch << 6) & 0xff) >> 6) + 1;
             }
         }
 
         tick++;
-        if (tick > PACER_RATE / 2) {
+        if (tick > PACER_RATE / BALL_SPEED) {
             tick = 0;
             ball_set_pos(&ball, ball.x + ball.vx, ball.y + ball.vy);
         }
@@ -218,7 +228,6 @@ int main(void)
     tinygl_init(PACER_RATE);
 
     if ((start_game())) {
-        
         uint8_t rounds = select_rounds();
         uint8_t pts;
 
