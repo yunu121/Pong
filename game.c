@@ -22,7 +22,6 @@
 #define MAX_ROUNDS 9
 #define X_BOUNDARY 4
 #define Y_BOUNDARY 6
-#define GAME_READY 125
 #define END_ROUND 126
 #define END_GAME 127
 
@@ -219,7 +218,6 @@ int main(void)
     tinygl_init(PACER_RATE);
 
     if ((start_game())) {
-        synchronise_boards(GAME_READY);
         
         uint8_t rounds = select_rounds();
         uint8_t pts;
