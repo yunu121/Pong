@@ -12,10 +12,17 @@
 #include "tinygl.h"
 #include "../fonts/font5x7_1.h"
 
+#define PACER_RATE 500
+#define MESSAGE_RATE 10
+
 void display_ball(Ball_t* ball);
 
 void display_paddle(Paddle_t* paddle);
 
+void display_character(char c);
+
 void display_text(char text[]);
+
+void draw_init(void);
 
 #endif

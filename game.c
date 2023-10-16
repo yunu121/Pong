@@ -6,6 +6,7 @@
 
 #include "system.h"
 #include "pacer.h"
+#include "timer.h"
 #include "button.h"
 #include "navswitch.h"
 #include "communications.h"
@@ -16,8 +17,6 @@
 #include <stdlib.h>
 
 /** Defining macros  */
-#define PACER_RATE 500
-#define MESSAGE_RATE 10
 #define MIN_ROUNDS 1
 #define MAX_ROUNDS 9
 #define X_BOUNDARY 4
@@ -34,12 +33,17 @@ static uint8_t host = 1;
 
 /** Function implementations  */
 
-/** Initialises display related modules.  */
-void draw_init(void)
+/** Initialises all the drivers used for the game.  */
+void drivers_init(void)
 {
+    system_init();
+    ir_uart_init();
+    button_init();
+    navswitch_init();
+    timer_init();
+    draw_init();
+    pacer_init(PACER_RATE);
     tinygl_init(PACER_RATE);
-    tinygl_font_set(&font5x7_1);
-    tinygl_text_speed_set(MESSAGE_RATE);
 }
 
 /** Start screen of the game.
@@ -48,11 +52,12 @@ uint8_t start_game(void)
 {
     display_text("Pong - Press Pushbutton to start");
 
-    while((button_push_event_p(0)) != 1) {
+    while ((button_push_event_p(0)) != 1) {
         pacer_wait();
         tinygl_update();
         button_update();
     }
+    
     return 1;
 }
 
@@ -68,7 +73,7 @@ uint8_t select_rounds(void)
         tinygl_update();
         navswitch_update();
 
-        if ((ch = recv_signal()) && ch != NULL && ch >= MIN_ROUNDS+'0' && ch <= MAX_ROUNDS+'0') {
+        if ((ch = recv_signal()) /*&& ch != NULL*/ && ch >= MIN_ROUNDS+'0' && ch <= MAX_ROUNDS+'0') {
             host = 0;
             return ch - '0';
         }
@@ -76,9 +81,11 @@ uint8_t select_rounds(void)
         if (navswitch_push_event_p(NAVSWITCH_NORTH)) {
             rounds = min(MAX_ROUNDS, rounds + 1);
         }
+        
         if (navswitch_push_event_p(NAVSWITCH_SOUTH)) {
             rounds = max(MIN_ROUNDS, rounds - 1);
         }
+        
         if (navswitch_push_event_p(NAVSWITCH_PUSH)) {
             send_signal(rounds + '0');
             return rounds;
@@ -92,10 +99,9 @@ uint8_t select_rounds(void)
     @return 1 if the player wins, else 0.  */
 uint8_t play_round(void)
 {
+    char ch;
     uint8_t in_motion = 0;
     int16_t tick = 0;
-    char ch;
-    int8_t vx;
 
     Paddle_t paddle = paddle_init();
     paddle_set_pos(&paddle, PADDLE_X, PADDLE_Y);
@@ -111,25 +117,29 @@ uint8_t play_round(void)
         if (navswitch_push_event_p(NAVSWITCH_NORTH)) {
             paddle_set_pos(&paddle, paddle.x, max(1, paddle.y - 1));
         }
+        
         if (navswitch_push_event_p(NAVSWITCH_SOUTH)) {
             paddle_set_pos(&paddle, paddle.x, min(5, paddle.y + 1));
         }
+        
         if (navswitch_push_event_p(NAVSWITCH_PUSH)) {
-            if (!in_motion && host && ball.x == paddle.x-1 && ball.y >= paddle.y-1 && ball.y <= paddle.y+1) {
+            
+            if (!in_motion && host && ball.x == paddle.x - 1 && ball.y >= paddle.y - 1 && ball.y <= paddle.y + 1) {
                 ball_set_dir(&ball, -1, ball.vy);
                 in_motion = 1;
             }
+        
         }
 
         if (in_motion && host) {
+            
             if (ball.x < 0) {
                 // send ball to opponent and disable ball display
                 host = 0;
                 in_motion = 0;
-                //vx = ball.vx == -1 ? 0 : 1;
-                //send_signal(ball.y + 10*(ball.vy+1) + 100*vx);
                 send_signal((ball.y << 4) + ((ball.vx+1) << 2) + ball.vy+1);
             }
+            
             if (ball.x == paddle.x-1 && ball.y >= paddle.y-1 && ball.y <= paddle.y+1) {
                 // ball is next to paddle
                 if (ball.y == paddle.y-1) {
@@ -140,23 +150,27 @@ uint8_t play_round(void)
                     ball_set_dir(&ball, -1, 0);
                 }
             }
+            
             if (ball.x > X_BOUNDARY) {
                 // lost round and send end round signal to opponent
                 send_signal(END_ROUND);
                 return 0;
             }
-            // ball bounce wall
+            
+            // ball bounces off wall
             if (ball.y >= Y_BOUNDARY) {
-                ball.y = Y_BOUNDARY;
-                ball.vy *= -1;
+                ball_set_pos(&ball, ball.x, Y_BOUNDARY);
+                ball_set_dir(&ball, ball.vx, ball.vy * -1);
             }
+            
             if (ball.y <= 0) {
-                ball.y = 0;
-                ball.vy *= -1;
+                ball_set_pos(&ball, ball.x, 0);
+                ball_set_dir(&ball, ball.vx, ball.vy * -1);
             }
         }
 
-        if ((ch = recv_signal()) && ch != NULL) {
+        if ((ch = recv_signal())) {
+            
             if (host && ch == END_GAME) {
                 return 2;
             } else if (!host && ch == END_ROUND) {
@@ -164,18 +178,13 @@ uint8_t play_round(void)
             } else if (!host) {
                 host = 1;
                 in_motion = 1;
-
-                ball.x = 0;
-                //ball.y = Y_BOUNDARY - (ch % 10);
-                //ball.vx = (ch/100 == 0) ? 1 : -1;
-                //ball.vy = -(((ch%100)/10)-1);
-                ball.y = Y_BOUNDARY - (ch >> 4);
-                ball.vx = -(((ch << 4) & 0xff) >> 6) + 1;
-                ball.vy = -(((ch << 6) & 0xff) >> 6) + 1;
+                ball_set_pos(&ball, 0, Y_BOUNDARY - (ch >> 4));
+                ball_set_dir(&ball, (-(((ch << 4) & 0xFF) >> 6) + 1), (-(((ch << 6) & 0xFF) >> 6)) + 1);
             }
         }
 
         tick++;
+        
         if (tick > PACER_RATE / BALL_SPEED) {
             tick = 0;
             ball_set_pos(&ball, ball.x + ball.vx, ball.y + ball.vy);
@@ -183,9 +192,10 @@ uint8_t play_round(void)
 
         tinygl_clear();
         display_paddle(&paddle);
+        
         if (host) {
             display_ball(&ball);
-        }
+        }   
     }
 }
 
@@ -193,6 +203,7 @@ uint8_t play_round(void)
 void show_score(void)
 {
     int16_t tick = 0;
+    
     while (tick < 2 * PACER_RATE) {
         pacer_wait();
         tinygl_update();
@@ -210,6 +221,7 @@ void evaluate_winner(uint8_t rounds)
     } else {
         display_text("LOSE");
     }
+    
     while(1) {
         pacer_wait();
         tinygl_update();
@@ -218,20 +230,13 @@ void evaluate_winner(uint8_t rounds)
 
 int main(void)
 {
-    system_init();
-    ir_uart_init();
-    button_init();
-    navswitch_init();
-    timer_init();
-    draw_init();
-    pacer_init(PACER_RATE);
-    tinygl_init(PACER_RATE);
+    drivers_init();
 
     if ((start_game())) {
         uint8_t rounds = select_rounds();
         uint8_t pts;
 
-        while(score != rounds) {
+        while (score != rounds) {
             pts = play_round();
             if (pts == 2) {
                 break;
@@ -244,7 +249,9 @@ int main(void)
         if (score == rounds) {
             send_signal(END_GAME);
         }
+        
         evaluate_winner(rounds);
+        
         return 0;
     }
 }

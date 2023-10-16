@@ -1,8 +1,9 @@
 /** @file   draw.c
     @author Yunu Cho, Owen Zhou
     @date   10 October 2023
-    @brief  Functions related to the LED matrix.
+    @brief  Functions related to the LED matrix
 */
+
 #include "draw.h"
 
 /** Displays the ball on the LED matrix.
@@ -10,6 +11,7 @@
 void display_ball(Ball_t* ball)
 {
     tinygl_point_t p1 = {ball->x, ball->y};
+    
     tinygl_draw_point(p1, 1);
 }
 
@@ -19,6 +21,7 @@ void display_paddle(Paddle_t* paddle)
 {
     tinygl_point_t p1 = {paddle->x, paddle->y-1};
     tinygl_point_t p2 = {paddle->x, paddle->y+1};
+    
     tinygl_draw_line(p1, p2, 1);
 }
 
@@ -30,6 +33,7 @@ void display_character(char c)
 
     buffer[0] = c;
     buffer[1] = '\0';
+    
     tinygl_text_mode_set(TINYGL_TEXT_MODE_STEP);
     tinygl_text(buffer);
 }
@@ -40,4 +44,12 @@ void display_text(char text[])
 {
     tinygl_text_mode_set(TINYGL_TEXT_MODE_SCROLL);
     tinygl_text(text);
+}
+
+/** Initialises display related modules.  */
+void draw_init(void)
+{
+    tinygl_init(PACER_RATE);
+    tinygl_font_set(&font5x7_1);
+    tinygl_text_speed_set(MESSAGE_RATE);
 }

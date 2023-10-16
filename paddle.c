@@ -13,6 +13,7 @@ Paddle_t paddle_init(void)
     Paddle_t paddle;
     paddle.x = PADDLE_X;
     paddle.y = PADDLE_Y;
+    
     return paddle;
 }
 

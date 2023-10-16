@@ -17,9 +17,11 @@ void send_signal(char c)
     @return the received character.  */
 char recv_signal(void)
 {
-    char c = NULL;
+    char c;
+    
     if (ir_uart_read_ready_p()) {
         c = ir_uart_getc();
     }
+    
     return c;
 }
