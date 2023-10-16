@@ -41,16 +41,16 @@ void drivers_init(void)
     button_init();
     navswitch_init();
     timer_init();
-    draw_init();
     pacer_init(PACER_RATE);
     tinygl_init(PACER_RATE);
+    draw_init();
 }
 
 /** Start screen of the game.
     @return 1 when the game is ready to start.  */
 uint8_t start_game(void)
 {
-    display_text("Pong - Press Pushbutton to start");
+    display_text("Pong - Pushbutton to start");
 
     while ((button_push_event_p(0)) != 1) {
         pacer_wait();
@@ -61,8 +61,8 @@ uint8_t start_game(void)
     return 1;
 }
 
-/** Selects the number of rounds using the navswitch + pushbutton.
-    @return number of rounds to be played.  */
+/** Select number of rounds to win using the navswitch.
+    @return number of rounds. */
 uint8_t select_rounds(void)
 {
     char ch;
@@ -73,9 +73,10 @@ uint8_t select_rounds(void)
         tinygl_update();
         navswitch_update();
 
-        if ((ch = recv_signal()) /*&& ch != NULL*/ && ch >= MIN_ROUNDS+'0' && ch <= MAX_ROUNDS+'0') {
+        /* recieve number of rounds from opponent */
+        if ((ch = recv_signal()) && ch >= MIN_ROUNDS && ch <= MAX_ROUNDS) {
             host = 0;
-            return ch - '0';
+            return ch;
         }
 
         if (navswitch_push_event_p(NAVSWITCH_NORTH)) {
@@ -85,9 +86,10 @@ uint8_t select_rounds(void)
         if (navswitch_push_event_p(NAVSWITCH_SOUTH)) {
             rounds = max(MIN_ROUNDS, rounds - 1);
         }
-        
+
+        /* send number of rounds to opponent */
         if (navswitch_push_event_p(NAVSWITCH_PUSH)) {
-            send_signal(rounds + '0');
+            send_signal(rounds);
             return rounds;
         }
 
@@ -114,12 +116,13 @@ uint8_t play_round(void)
         tinygl_update();
         navswitch_update();
 
+        /* constrained paddle movement */
         if (navswitch_push_event_p(NAVSWITCH_NORTH)) {
-            paddle_set_pos(&paddle, paddle.x, max(1, paddle.y - 1));
+            paddle_set_pos(&paddle, paddle.x, max(paddle.y - 1, 1));
         }
         
         if (navswitch_push_event_p(NAVSWITCH_SOUTH)) {
-            paddle_set_pos(&paddle, paddle.x, min(5, paddle.y + 1));
+            paddle_set_pos(&paddle, paddle.x, min(paddle.y + 1, Y_BOUNDARY - 1));
         }
         
         if (navswitch_push_event_p(NAVSWITCH_PUSH)) {
