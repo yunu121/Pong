@@ -5,28 +5,48 @@ pong is a two-player game using two UCFK4 microcontroller boards.
 
 Requirements
 ------------
-TODO: dev tools (dfu-programmer), header files, dependencies, etc
+In order to build pong you need the UCFK4 drivers and modules:
+    
+	git clone https://eng-git.canterbury.ac.nz/rmc84/ence260-ucfk4
+
+Clone this repository in ence260-ucfk4/assignment:
+
+    cd path/to/ence260-ucfk4/assignment
+	git clone https://eng-git.canterbury.ac.nz/ence260-2023/group_319
 
 
 Installation
 ------------
 Edit Makefile as necessary (program files will be created in the
-current working directory).
+current working directory group_319).
 
-Afterwards enter the following command to build and run pong:
+Afterwards enter the following command to build and run pong (if
+necessary as root):
 
     make program
-	
+
+To prevent errors, reset the UCFK4 between builds and runs.
+ 	
 
 Running pong
 ------------
-TODO: connecting the UCFK4's
-      navigate the interface with navswitch (left, right, up, down)
-	  confirm choices with navswitch (middle) / push button
-	  - set number of rounds through interface
-	  - play round(s) until match point
-	  - display results (win/lose)
-	  reset UCFK4 with the reset button S2
+The objective of the game is to win the determined number of rounds
+of pong. Players win a round if the opponent fails to intercept the 
+ball with their paddle.
+
+Initially there will be starting text. Press the pushbutton BUTTON1
+to proceed to round selection.
+
+In round selection, use the navswitch NAVSWITCH_NORTH, NAVSWITCH_SOUTH,
+and NAVSWITCH_PUSH to respectively increase, decrease, and set the
+number of rounds to be played.
+
+In game, use the navswitch NAVSWITCH_NORTH, NAVSWITCH_SOUTH, and
+NAVSWITCH_PUSH to move and serve with the paddle.
+
+At each rounds conclusion, the players' score will briefly display.
+
+At the games conclusion, the result of the game will be displayed.
 
 
 Authors
