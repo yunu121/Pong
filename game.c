@@ -137,7 +137,7 @@ uint8_t play_round(void)
             if (ball.x < 0) {
                 host = 0;
                 in_motion = 0;
-                send_signal((ball.y << 4) + ((ball.vx + 1) << 2) + ball.vy + 1);
+                send_signal(10 * (ball.vy + 1) + ball.y);
             }
 
             /* ball redirection via paddle */
@@ -162,13 +162,13 @@ uint8_t play_round(void)
             /* ball bounces off edge */
             if (ball.y >= TINYGL_HEIGHT - 1) {
                 ball_set_pos(&ball, ball.x, TINYGL_HEIGHT - 1);
-                ball_set_dir(&ball, ball.vx, -ball.vy);
+                ball_set_dir(&ball, ball.vx, -1);
             }
 
             /* ball bounces off other edge */
             if (ball.y <= 0) {
                 ball_set_pos(&ball, ball.x, 0);
-                ball_set_dir(&ball, ball.vx, -ball.vy);
+                ball_set_dir(&ball, ball.vx, 1);
             }
 
         }
@@ -179,12 +179,12 @@ uint8_t play_round(void)
                 return 2;
             } else if (!host && ch == END_ROUND) {
                 return 1;
-            } else if (!host) {
+            } else if (!host && ch >= 0 && ch <= 26) {
                 /* receive ball from opponent */
                 host = 1;
                 in_motion = 1;
-                ball_set_pos(&ball, 0, (TINYGL_HEIGHT - 1) - (ch >> 4));
-                ball_set_dir(&ball, (-(((ch << 4) & 0xFF) >> 6) + 1), (-(((ch << 6) & 0xFF) >> 6)) + 1);
+                ball_set_pos(&ball, 0, (TINYGL_HEIGHT - 1) - (ch % 10));
+                ball_set_dir(&ball, 1, 1 - (ch / 10));
             }
 
         }
