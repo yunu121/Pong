@@ -30,7 +30,6 @@ void display_paddle(Paddle_t* paddle)
 void display_character(char c)
 {
     char buffer[2];
-
     buffer[0] = c;
     buffer[1] = '\0';
 

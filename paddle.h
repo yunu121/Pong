@@ -17,10 +17,8 @@ typedef struct {
     int8_t y;
 } Paddle_t;
 
-/* Paddle initialisation and returns paddle object */
 Paddle_t paddle_init(void);
 
-/* Change the xy position of the paddle */
 void paddle_set_pos(Paddle_t* paddle, uint8_t x, uint8_t y);
 
 #endif

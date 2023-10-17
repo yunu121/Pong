@@ -10,9 +10,11 @@
 #include "ir_uart.h"
 
 #include <stdint.h>
-#include <stdlib.h>
 
-void send_signal(char c);
+#define END_ROUND -127
+#define END_GAME -128
+
+void send_signal(char ch);
 
 char recv_signal(void);
 

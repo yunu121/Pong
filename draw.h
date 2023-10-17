@@ -12,8 +12,7 @@
 #include "tinygl.h"
 #include "../fonts/font5x7_1.h"
 
-#define PACER_RATE 500
-#define MESSAGE_RATE 15
+#define MESSAGE_RATE 20
 
 void display_ball(Ball_t* ball);
 

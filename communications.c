@@ -8,20 +8,20 @@
 
 /** Sends the given character.
     @param c character that is being sent.  */
-void send_signal(char c)
+void send_signal(char ch)
 {
-    ir_uart_putc(c);
+    ir_uart_putc(ch);
 }
 
 /** Receives the received character.
     @return the received character.  */
 char recv_signal(void)
 {
-    char c;
-    
+    char ch = '\0';
+
     if (ir_uart_read_ready_p()) {
-        c = ir_uart_getc();
+        ch = ir_uart_getc();
     }
-    
-    return c;
+
+    return ch;
 }

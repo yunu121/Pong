@@ -16,20 +16,15 @@
 
 #include <stdlib.h>
 
-/** Defining macros  */
+#define PACER_RATE 500
 #define MIN_ROUNDS 1
 #define MAX_ROUNDS 9
-#define END_ROUND 126
-#define END_GAME 127
-#define BALL_SPEED 2
 
 #define min(x, y) ((x) < (y) ? (x) : (y))
 #define max(x, y) ((x) < (y) ? (y) : (x))
 
 static uint8_t score = 0;
 static uint8_t host = 1;
-
-/** Function implementations  */
 
 /** Initialises all the drivers used for the game.  */
 void drivers_init(void)
@@ -72,9 +67,10 @@ uint8_t select_rounds(void)
         tinygl_update();
         navswitch_update();
 
-        /* recieve number of rounds from opponent */
+        /* receive number of rounds from opponent */
         if ((ch = recv_signal()) && ch >= MIN_ROUNDS && ch <= MAX_ROUNDS) {
             host = 0;
+
             return ch;
         }
 
@@ -89,6 +85,7 @@ uint8_t select_rounds(void)
         /* send number of rounds to opponent */
         if (navswitch_push_event_p(NAVSWITCH_PUSH)) {
             send_signal(rounds);
+
             return rounds;
         }
 
@@ -123,31 +120,37 @@ uint8_t play_round(void)
 
         if (navswitch_push_event_p(NAVSWITCH_PUSH)) {
 
-            if (!in_motion && host && ball.x == paddle.x - 1 && ball.y >= paddle.y - 1 && ball.y <= paddle.y + 1) {
-                ball_set_dir(&ball, -1, ball.vy);
-                in_motion = 1;
+            if (!in_motion && host) {
+
+                if (ball.x == paddle.x - 1 && ball.y >= paddle.y - 1 && ball.y <= paddle.y + 1) {
+                    ball_set_dir(&ball, -1, ball.vy);
+                    in_motion = 1;
+                }
+
             }
 
         }
 
         if (in_motion && host) {
 
+            /* send ball to opponent */
             if (ball.x < 0) {
-                // send ball to opponent and disable ball display
                 host = 0;
                 in_motion = 0;
-                send_signal((ball.y << 4) + ((ball.vx+1) << 2) + ball.vy+1);
+                send_signal((ball.y << 4) + ((ball.vx + 1) << 2) + ball.vy + 1);
             }
 
             /* ball redirection via paddle */
-            if (ball.x == paddle.x-1) {
-                if (ball.y == paddle.y-1) {
+            if (ball.x == paddle.x - 1) {
+
+                if (ball.y == paddle.y - 1) {
                     ball_set_dir(&ball, -1, -1);
                 } else if (ball.y == paddle.y) {
                     ball_set_dir(&ball, -1, 0);
-                } else if (ball.y == paddle.y+1) {
+                } else if (ball.y == paddle.y + 1) {
                     ball_set_dir(&ball, -1, 1);
                 }
+
             }
 
             /* send end round signal to opponent */
@@ -159,13 +162,15 @@ uint8_t play_round(void)
             /* ball bounces off edge */
             if (ball.y >= TINYGL_HEIGHT - 1) {
                 ball_set_pos(&ball, ball.x, TINYGL_HEIGHT - 1);
-                ball_set_dir(&ball, ball.vx, ball.vy * -1);
+                ball_set_dir(&ball, ball.vx, -ball.vy);
             }
 
+            /* ball bounces off other edge */
             if (ball.y <= 0) {
                 ball_set_pos(&ball, ball.x, 0);
-                ball_set_dir(&ball, ball.vx, ball.vy * -1);
+                ball_set_dir(&ball, ball.vx, -ball.vy);
             }
+
         }
 
         if ((ch = recv_signal())) {
@@ -175,17 +180,20 @@ uint8_t play_round(void)
             } else if (!host && ch == END_ROUND) {
                 return 1;
             } else if (!host) {
+                /* receive ball from opponent */
                 host = 1;
                 in_motion = 1;
                 ball_set_pos(&ball, 0, (TINYGL_HEIGHT - 1) - (ch >> 4));
                 ball_set_dir(&ball, (-(((ch << 4) & 0xFF) >> 6) + 1), (-(((ch << 6) & 0xFF) >> 6)) + 1);
             }
+
         }
 
         tick++;
 
         if (tick > PACER_RATE / BALL_SPEED) {
             tick = 0;
+            /* update ball position based on timer */
             ball_set_pos(&ball, ball.x + ball.vx, ball.y + ball.vy);
         }
 
@@ -195,6 +203,7 @@ uint8_t play_round(void)
         if (host) {
             display_ball(&ball);
         }
+
     }
 }
 
@@ -212,7 +221,7 @@ void show_score(void)
 }
 
 /** Evaluates the winner by comparing the number of rounds with the player's score.
-    @param rounds the number of rounds to be played.  */
+    @param rounds the number of rounds to win.  */
 void evaluate_winner(uint8_t rounds)
 {
     if (score == rounds) {
@@ -244,7 +253,8 @@ int main(void)
             }
             show_score();
         }
-        // send game end signal to break while loop in other funkit
+
+        /* send signal to break loop in opponent's funkit */
         if (score == rounds) {
             send_signal(END_GAME);
         }
